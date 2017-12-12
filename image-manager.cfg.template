@@ -1,0 +1,16 @@
+[database]
+dialect=mysql
+connection_url=admin:zxc90zxc@tcp(mysql:3306)/nc_url_shortener?charset=utf8&parseTime=True
+
+[http]
+listener=:8080
+read_timeout=10
+write_timeout=10
+
+# Log configuration is optional
+[log]
+filename=/var/log/golang-url-shortener.log
+max_file_size_in_mb=200
+max_backups=3
+max_age_in_days=28
+compress_backups=true

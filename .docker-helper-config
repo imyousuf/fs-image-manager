@@ -1,0 +1,2 @@
+IMAGE_NAME=golang-url-shortener
+DOCKER_REGISTRY_HOST="imyousuf"

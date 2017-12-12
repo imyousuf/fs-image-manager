@@ -1,0 +1,18 @@
+shortener-mysql:
+  image: mysql:5.7
+  container_name: shortener_dev_mysql
+  environment:
+    MYSQL_DATABASE: nc_url_shortener
+    MYSQL_ROOT_PASSWORD: qwe90qwe
+    MYSQL_USER: admin
+    MYSQL_PASSWORD: zxc90zxc
+
+golang-url-shortener:
+  build: ./
+  links:
+    - shortener-mysql:mysql
+  ports:
+    - "10080:8080"
+  volumes:
+    - ./main.go:/go/src/github.com/newscred/golang-url-shortener/main.go
+    - ./app:/go/src/github.com/newscred/golang-url-shortener/app/

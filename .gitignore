@@ -12,3 +12,16 @@
 
 # Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
 .glide/
+
+# mac hidden files
+.DS_Store
+
+# Sqlite specific files
+*\.sqlite*
+
+# Using `dep` so ignoring vendor dir
+vendor/
+
+# Project binaries
+fs-image-manager
+image-manager.cfg

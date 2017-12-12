@@ -1,0 +1,9 @@
+golang-url-shortener
+vendor/*
+url-shortener.cfg
+Dockerfile
+docker-compose.yml
+*docker-helper-config
+*dockerignore
+*gitignore
+*git
