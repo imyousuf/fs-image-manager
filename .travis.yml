@@ -1,14 +1,11 @@
-
 language: go
-
 go:
-  - 1.9.2
-
+- 1.9.2
 deploy:
   provider: releases
-  file: 
-    - "./dist/fs-image-manager*.tar.bz2"
-  overwrite: true
-  skip_cleanup: true
+  api_key:
+    secure: e81jvlQaGEaSpo0qLocoE0r1maIxFP8SsOHO0mO1vcl9ySxP5g0b2vAd2ooOqvD3uy4cncyPRBtJYw08ndgZdl0jwKb5OjXdVonCwqVTPuD1bWBorUs99iyfsHy0vtbuDQ23o4MmKswe2Yg8UHen7u+P7QEkMw3FC3z+cZNnbLWrqaY1UkKesjNwFalsRJZ1I0NsBBrbVJGXfozhaRHKc1ByEvyUuEGdCTjg0neMHMnf5wDA9Z9D502sGQvQ6ZFkQ82iHfM8m7iaQSZlOFwBwBsijMproRys2sy/VKEnwX7OPEHo8GULkHusqcQgtJpLBTxLKuzs2kog3PDCOPFHWZQdJWOQTW8KrNywAeg26ZaS6IYlXCYZuSBrQLX67Z42/d/xTDI0rje7lJQ241OCExk0TemP59HeaB5M/lVhJt7F8dD4ibvBEKkNvbSsf8wljNh14fhukEMJF/L00QHBs1UQcvq4b9PeyNYtMAEHUSXuZjG/2JB+mbIYrO7WvrcmNaOrNJ+E2A1PsReGJSx7KsB29PiCK1yoJ0TsupXI/3Juu6gbZYKbaw7vQP0cMv3ebqCCF3UWX3nSvD1wqYzT5XQcVo8y7orVDSxJtkZRi97HNF7OvrtppBCBx0l9C8ye2dBq6J7pPg5smAaw815pYWA5CdonIbNtBxkQTbzX4P0=
+  file: "./dist/fs-image-manager-*.tar.bz2"
   on:
+    repo: imyousuf/fs-image-manager
     tags: true
