@@ -1,0 +1,14 @@
+
+language: go
+
+go:
+  - 1.9.2
+
+deploy:
+  provider: releases
+  file: 
+    - "./dist/fs-image-manager*.tar.bz2"
+  overwrite: true
+  skip_cleanup: true
+  on:
+    tags: true
