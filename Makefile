@@ -10,7 +10,8 @@ dep-tools:
 build:
 	go build
 	cp ./fs-image-manager ./dist/
-	(cd dist && tar cjvf fs-image-manager-$(git log --pretty=format:'%h' -n 1).tar.bz2 ./fs-image-manager)
+	@echo "Version: $(shell git log --pretty=format:'%h' -n 1)"
+	(cd dist && tar cjvf fs-image-manager-$(shell git log --pretty=format:'%h' -n 1).tar.bz2 ./fs-image-manager)
 
 test:
 	go test ./...
