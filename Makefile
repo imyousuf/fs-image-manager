@@ -2,12 +2,12 @@ all: clean dep-tools deps test build
 
 deps:
 	dep ensure -vendor-only
-	mkdir -p ./dist/
 
 dep-tools:
 	go get -u github.com/golang/dep/cmd/dep
 
 build:
+	mkdir -p ./dist/
 	go build
 	cp ./fs-image-manager ./dist/
 	@echo "Version: $(shell git log --pretty=format:'%h' -n 1)"
