@@ -2,7 +2,9 @@ language: go
 go:
   - 1.9.2
 before_deploy:
+  - echo "$(git log --pretty=format:'%h' -n 1)"
   - cp "./dist/fs-image-manager-$(git log --pretty=format:'%h' -n 1).tar.bz2" "./dist/fs-image-manager-$TRAVIS_TAG.tar.bz2"
+  - ls ./dist/
 deploy:
   provider: releases
   api_key:
