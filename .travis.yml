@@ -1,6 +1,8 @@
 language: go
 go:
   - 1.9.2
+node_js:
+  - 8.9
 before_deploy:
   - cp "./dist/fs-image-manager-$(git log --pretty=format:'%h' -n 1).tar.bz2" "./dist/fs-image-manager-$TRAVIS_TAG.tar.bz2"
 deploy:

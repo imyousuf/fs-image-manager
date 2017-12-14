@@ -84,6 +84,6 @@ RUN make deps
 ENV CHROME_BIN=/usr/bin/chromium-browser
 ENV CHROME_PATH=/usr/lib/chromium/
 ADD . .
-EXPOSE 8080
 RUN make test install setup-docker
+EXPOSE 8080
 CMD ["fs-image-manager"]
