@@ -17,10 +17,20 @@ let files = [entryBundle].concat(testSrc).concat(appSrc).concat(sourceMaps);
 let transpilerOptions = project.transpiler.options;
 transpilerOptions.sourceMap = 'inline';
 
+const isDocker = require('is-docker')();
+
 module.exports = function(config) {
   config.set({
     basePath: '',
     frameworks: [project.testFramework.id],
+    customLaunchers: {
+      ChromeCustom: {
+        base: 'ChromeHeadless',
+        // We must disable the Chrome sandbox when running Chrome inside Docker (Chrome's sandbox needs
+        // more permissions than Docker allows by default)
+        flags: isDocker ? ['--no-sandbox'] : []
+      }
+    },
     files: files,
     exclude: [],
     preprocessors: {
@@ -33,7 +43,7 @@ module.exports = function(config) {
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: true,
-    browsers: ['Chrome'],
+    browsers: ['ChromeHeadless'],
     singleRun: false,
     // client.args must be a array of string.
     // Leave 'aurelia-root', project.paths.root in this order so we can find
