@@ -20,7 +20,7 @@ build: build-web
 	go build
 	cp ./fs-image-manager ./dist/
 	@echo "Version: $(shell git log --pretty=format:'%h' -n 1)"
-	(cd dist && tar cjvf fs-image-manager-$(shell git log --pretty=format:'%h' -n 1).tar.bz2 ./fs-image-manager)
+	(cd dist && tar cjvf fs-image-manager-$(shell git log --pretty=format:'%h' -n 1).tar.bz2 ./fs-image-manager ./web)
 
 test:
 	go test ./...
