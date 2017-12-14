@@ -1,2 +1,2 @@
-IMAGE_NAME=golang-url-shortener
+IMAGE_NAME=fs-image-manager
 DOCKER_REGISTRY_HOST="imyousuf"

@@ -1,18 +1,19 @@
-shortener-mysql:
+img-mngr-mysql:
   image: mysql:5.7
-  container_name: shortener_dev_mysql
+  container_name: img_mngr_dev_mysql
   environment:
-    MYSQL_DATABASE: nc_url_shortener
-    MYSQL_ROOT_PASSWORD: qwe90qwe
+    MYSQL_DATABASE: img_mngr
+    MYSQL_ROOT_PASSWORD: qwe909qwe
     MYSQL_USER: admin
-    MYSQL_PASSWORD: zxc90zxc
+    MYSQL_PASSWORD: zxc909zxc
 
-golang-url-shortener:
+fs-image-manager:
   build: ./
   links:
-    - shortener-mysql:mysql
+    - img-mngr-mysql:mysql
   ports:
     - "10080:8080"
   volumes:
-    - ./main.go:/go/src/github.com/newscred/golang-url-shortener/main.go
-    - ./app:/go/src/github.com/newscred/golang-url-shortener/app/
+    - ./main.go:/go/src/github.com/imyousuf/fs-image-manager/main.go
+    - ./Makefile:/go/src/github.com/imyousuf/fs-image-manager/Makefile
+    - ./app:/go/src/github.com/newscred/fs-image-manager/app/
