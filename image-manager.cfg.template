@@ -6,6 +6,7 @@ connection_url=admin:zxc90zxc@tcp(mysql:3306)/nc_url_shortener?charset=utf8&pars
 listener=:8080
 read_timeout=10
 write_timeout=10
+static_file_dir=web/img-mngr/
 
 # Log configuration is optional
 [log]

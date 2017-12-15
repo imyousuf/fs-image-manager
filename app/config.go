@@ -40,6 +40,7 @@ type HTTPConfig interface {
 	GetHTTPListeningAddr() string
 	GetHTTPReadTimeout() uint
 	GetHTTPWriteTimeout() uint
+	GetStaticFileDir() string
 }
 
 // DBConfig represents DB configuration related behaviors
@@ -55,6 +56,7 @@ type Config struct {
 	httpListeningAddr      string
 	httpReadTimeout        uint
 	httpWriteTimeout       uint
+	staticFileDir          string
 	logFilename            string
 	maxFileSize            int
 	maxBackups             int
@@ -85,6 +87,10 @@ func (config *Config) GetHTTPReadTimeout() uint {
 // GetHTTPWriteTimeout retrieves the connection write timeout
 func (config *Config) GetHTTPWriteTimeout() uint {
 	return config.httpWriteTimeout
+}
+
+func (config *Config) GetStaticFileDir() string {
+	return config.staticFileDir
 }
 
 // IsLoggerConfigAvailable checks is logger configuration is set since its optional
@@ -204,9 +210,16 @@ func setupHTTPConfiguration(cfg *ini.File, configuration *Config) error {
 			writeTimeout = defaultReadTimeoutInSeconds
 		}
 	}
+	// static_file_dir=web/img-mngr/
+	httpStaticFileDir, staticFileDirErr := httpSection.GetKey("static_file_dir")
+	if staticFileDirErr != nil {
+		return staticFileDirErr
+	}
+
 	configuration.httpListeningAddr = httpListener.String()
 	configuration.httpReadTimeout = readTimeout
 	configuration.httpWriteTimeout = writeTimeout
+	configuration.staticFileDir = httpStaticFileDir.String()
 	return nil
 }
 

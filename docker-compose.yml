@@ -16,4 +16,5 @@ fs-image-manager:
   volumes:
     - ./main.go:/go/src/github.com/imyousuf/fs-image-manager/main.go
     - ./Makefile:/go/src/github.com/imyousuf/fs-image-manager/Makefile
-    - ./app:/go/src/github.com/newscred/fs-image-manager/app/
+    - ./app:/go/src/github.com/imyousuf/fs-image-manager/app/
+    - ./web:/go/src/github.com/imyousuf/fs-image-manager/web/

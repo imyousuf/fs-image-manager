@@ -10,6 +10,10 @@ import (
 	"github.com/imyousuf/fs-image-manager/app"
 )
 
+const (
+	webAppURLPrefix = "/web/"
+)
+
 // RequestLogger is a simple io.Writer that allows requests to be logged
 type RequestLogger struct {
 }
@@ -22,7 +26,11 @@ func (rLogger RequestLogger) Write(p []byte) (n int, err error) {
 // ConfigureWebAPI configures all the backend API of the service
 func ConfigureWebAPI(config app.HTTPConfig) *http.Server {
 	router := mux.NewRouter()
+	router.HandleFunc("/", apiDefaultHandler)
+	router.PathPrefix(webAppURLPrefix).Handler(http.StripPrefix(webAppURLPrefix,
+		http.FileServer(http.Dir(config.GetStaticFileDir()))))
 	apiRouter := router.PathPrefix("/api").Subrouter()
+	apiRouter.HandleFunc("/", apiRootHandler)
 	apiRouter.HandleFunc(apiAccessURLPattern, apiAccessHandler).Methods("GET")
 	server := &http.Server{
 		Handler:      handlers.LoggingHandler(RequestLogger{}, router),

@@ -15,6 +15,7 @@ const (
 	listener=:8080
 	read_timeout=11
 	write_timeout=11
+	static_file_dir=web/img-mngr/
 	`
 	fullConfig = mandatoryConfig + `[log]
 	filename=/var/log/golang-url-shortener.log
