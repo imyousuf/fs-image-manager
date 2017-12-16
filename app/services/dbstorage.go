@@ -31,6 +31,7 @@ func openDBConnection(config app.DBConfig) bool {
 			if err == nil {
 				successful = true
 				db.AutoMigrate(&DownloadedFile{}, &DownloadHistory{}, &DeviceModel{})
+				log.Println("DB Connection initialized and migrated models")
 			} else {
 				log.Println(err)
 			}

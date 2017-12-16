@@ -10,6 +10,8 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/imyousuf/fs-image-manager/app/services"
+
 	"github.com/imyousuf/fs-image-manager/app"
 	"github.com/imyousuf/fs-image-manager/app/controllers"
 	lumberjack "gopkg.in/natefinch/lumberjack.v2"
@@ -24,6 +26,7 @@ func main() {
 		log.Panic("Configuration error", confErr)
 	}
 	log.Println("DB Connection URL -", config.GetDBConnectionURL())
+	services.InitAndCheckDBConnection(config)
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
 	server := controllers.ConfigureWebAPI(config)
