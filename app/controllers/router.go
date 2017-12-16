@@ -3,6 +3,7 @@ package controllers
 import (
 	"log"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/gorilla/handlers"
@@ -11,7 +12,16 @@ import (
 )
 
 const (
-	webAppURLPrefix = "/web/"
+	webAppURLPrefix       = "/web/"
+	apiURLPrefix          = "/api"
+	contentTypeHeaderName = "Content-Type"
+	jsonMIMEType          = "application/json"
+)
+
+var (
+	router            *mux.Router
+	apiRouter         *mux.Router
+	routerInitializer sync.Once
 )
 
 // RequestLogger is a simple io.Writer that allows requests to be logged
@@ -25,13 +35,12 @@ func (rLogger RequestLogger) Write(p []byte) (n int, err error) {
 
 // ConfigureWebAPI configures all the backend API of the service
 func ConfigureWebAPI(config app.HTTPConfig) *http.Server {
-	router := mux.NewRouter()
-	router.HandleFunc("/", apiDefaultHandler)
-	router.PathPrefix(webAppURLPrefix).Handler(http.StripPrefix(webAppURLPrefix,
-		http.FileServer(http.Dir(config.GetStaticFileDir()))))
-	apiRouter := router.PathPrefix("/api").Subrouter()
-	apiRouter.HandleFunc("/", apiRootHandler)
-	apiRouter.HandleFunc(apiAccessURLPattern, apiAccessHandler).Methods("GET")
+	routerInitializer.Do(func() {
+		router = mux.NewRouter()
+		setupNonAPIRoutes(router, config)
+		apiRouter = router.PathPrefix(apiURLPrefix).Subrouter()
+		setupAPIRoutes(apiRouter)
+	})
 	server := &http.Server{
 		Handler:      handlers.LoggingHandler(RequestLogger{}, router),
 		Addr:         config.GetHTTPListeningAddr(),
@@ -39,4 +48,24 @@ func ConfigureWebAPI(config app.HTTPConfig) *http.Server {
 		WriteTimeout: time.Duration(config.GetHTTPWriteTimeout()) * time.Second,
 	}
 	return server
+}
+
+func setupNonAPIRoutes(router *mux.Router, config app.HTTPConfig) {
+	router.HandleFunc("/", apiDefaultHandler)
+	router.PathPrefix(webAppURLPrefix).Handler(http.StripPrefix(webAppURLPrefix,
+		http.FileServer(http.Dir(config.GetStaticFileDir()))))
+}
+
+func setupAPIRoutes(apiRouter *mux.Router) {
+	apiRouter.HandleFunc("/", apiRootHandler)
+	apiRouter.HandleFunc(apiAccessURLPattern, apiAccessHandler).Methods("GET").
+		Name(apiAccessRouteName)
+	apiRouter.HandleFunc(downloadHistoryURLPattern, downloadHistoryHandler).
+		Methods("GET").Name(downloadHistoryRouteName)
+	apiRouter.HandleFunc(downloadURLPattern, downloadHandler).Methods("POST").
+		Name(downloadRouteName)
+	apiRouter.HandleFunc(listMediaURLPattern, listMediaRootHandler).Methods("Get").
+		Name(listMediaName)
+	apiRouter.HandleFunc(listMediaURLPattern, listMediaHandler).Methods("Get").
+		Queries("path", "{dirPath}")
 }
