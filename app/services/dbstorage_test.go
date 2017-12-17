@@ -22,7 +22,7 @@ func getMockDBConfig() *MockDBConfig {
 }
 
 func cleanDB() {
-	GetDB().DropTable(&DownloadedFile{}, &DownloadHistory{}, &DeviceModel{})
+	GetDB().DropTable(&DownloadedFileModel{}, &DownloadHistoryModel{}, &DeviceModel{})
 	ReInitDBConnection()
 }
 

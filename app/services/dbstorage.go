@@ -30,7 +30,7 @@ func openDBConnection(config app.DBConfig) bool {
 			db, err = gorm.Open(config.GetDBDialect(), config.GetDBConnectionURL())
 			if err == nil {
 				successful = true
-				db.AutoMigrate(&DownloadedFile{}, &DownloadHistory{}, &DeviceModel{})
+				db.AutoMigrate(&DownloadedFileModel{}, &DownloadHistoryModel{}, &DeviceModel{})
 				log.Println("DB Connection initialized and migrated models")
 			} else {
 				log.Println(err)

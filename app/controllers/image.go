@@ -11,7 +11,6 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
-
 	"github.com/nfnt/resize"
 )
 
@@ -31,7 +30,7 @@ func imageScalingHandler(w http.ResponseWriter, r *http.Request) {
 	queryParams := r.URL.Query()
 	widthStr := queryParams.Get(imageScaleWidthQueryParam)
 	heightStr := queryParams.Get(imageScaleHeightQueryParam)
-	log.Println("Image tring to scale:", imagePath, widthStr, heightStr)
+	log.Println("Image trying to scale:", imagePath, widthStr, heightStr)
 	if imgFile, err := os.Open(libraryConfig.GetLibraryRoot() + imagePath); err == nil {
 		if img, _, err := image.Decode(imgFile); err == nil {
 			var width, height int
