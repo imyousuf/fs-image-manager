@@ -34,7 +34,8 @@ func (rLogger RequestLogger) Write(p []byte) (n int, err error) {
 }
 
 // ConfigureWebAPI configures all the backend API of the service
-func ConfigureWebAPI(config app.HTTPConfig) *http.Server {
+func ConfigureWebAPI(config app.HTTPConfig, libConfig app.LibraryConfig) *http.Server {
+	libraryConfig = libConfig
 	routerInitializer.Do(func() {
 		router = mux.NewRouter()
 		setupNonAPIRoutes(router, config)
@@ -64,8 +65,10 @@ func setupAPIRoutes(apiRouter *mux.Router) {
 		Methods("GET").Name(downloadHistoryRouteName)
 	apiRouter.HandleFunc(downloadURLPattern, downloadHandler).Methods("POST").
 		Name(downloadRouteName)
-	apiRouter.HandleFunc(listMediaURLPattern, listMediaRootHandler).Methods("Get").
+	apiRouter.HandleFunc(listMediaURLPattern, listMediaRootHandler).Methods("GET").
 		Name(listMediaName)
-	apiRouter.HandleFunc(listMediaURLPattern, listMediaHandler).Methods("Get").
-		Queries("path", "{dirPath}")
+	apiRouter.HandleFunc(listPathMediaURLPattern, listMediaHandler).Methods("GET").
+		Queries(dirPathQueryParam, "{"+dirPathQueryParamKey+"}").Name(listPathMediaName)
+	apiRouter.HandleFunc(imageScaleURLPattern, imageScalingHandler).Methods("GET").
+		Queries(imageScalePathQueryParam, "{"+imageScalePathQueryParam+"}").Name(imageScaleRouteName)
 }
