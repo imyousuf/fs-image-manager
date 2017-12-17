@@ -16,6 +16,7 @@ const (
 	apiURLPrefix          = "/api"
 	contentTypeHeaderName = "Content-Type"
 	jsonMIMEType          = "application/json"
+	jpegMIMEType          = "image/jpeg"
 )
 
 var (

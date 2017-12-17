@@ -56,12 +56,18 @@ func listDirectoriesAndImagesInPath(path string) ([]os.FileInfo, error) {
 func getListResource(path string, files []os.FileInfo) *ListResource {
 	directories := make([]DirectoryResource, 0, len(files))
 	images := make([]ImageResource, 0, len(files))
+	relativePathPrefix := path[len(libraryConfig.GetLibraryRoot()):]
 	for _, file := range files {
 		if file.IsDir() {
 			directories = append(directories, DirectoryResource{Name: file.Name(),
-				ListURI: getFolderListURI(path[len(libraryConfig.GetLibraryRoot()):] + file.Name() + "/")})
+				ListURI: getFolderListURI(relativePathPrefix + file.Name() + "/")})
 		} else {
-			images = append(images, ImageResource{Name: file.Name(), ImageURL: "NoURL"})
+			imageURL := relativePathPrefix + file.Name()
+			images = append(images, ImageResource{
+				Name:         file.Name(),
+				ImageURL:     getDefaultImageURL(imageURL),
+				ThumbnailURL: getThumbnailURL(imageURL),
+				DownloadID:   imageURL})
 		}
 	}
 	return &ListResource{Directories: directories, Images: images}
@@ -76,6 +82,7 @@ func listDirectory(w http.ResponseWriter, r *http.Request, path string) {
 	files, err := listDirectoriesAndImagesInPath(path)
 	if err == nil {
 		listResource := getListResource(path, files)
+		w.Header().Set(contentTypeHeaderName, jsonMIMEType)
 		json.NewEncoder(w).Encode(*listResource)
 	} else {
 		w.WriteHeader(500)

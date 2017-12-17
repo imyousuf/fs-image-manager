@@ -57,6 +57,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/nfnt/resize"
+  packages = ["."]
+  revision = "891127d8d1b52734debe1b3c3d7e747502b6c366"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/net"
   packages = ["context"]
   revision = "d866cfc389cec985d6fda2859936a575a55a3ab6"
@@ -70,6 +76,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a929c075b99dd897cdf3030699c919ff099e6f22afa4d0b0c2409e3f5cd73af0"
+  inputs-digest = "7211b59909ecbae379f3054c3f5ae50d5928fd19256715dcc3c7187e7e4c4995"
   solver-name = "gps-cdcl"
   solver-version = 1

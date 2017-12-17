@@ -15,8 +15,10 @@ type DirectoryResource struct {
 
 // ImageResource represents a single Image Resource
 type ImageResource struct {
-	Name     string
-	ImageURL string
+	Name         string
+	ImageURL     string
+	ThumbnailURL string
+	DownloadID   string
 }
 
 // ListResource represents the data sent on a list call
