@@ -8,6 +8,10 @@ read_timeout=10
 write_timeout=10
 static_file_dir=web/img-mngr/
 
+[library]
+library_root=/path/to/images_dir
+support_png=true
+
 # Log configuration is optional
 [log]
 filename=/var/log/golang-url-shortener.log

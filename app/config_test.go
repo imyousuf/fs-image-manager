@@ -16,6 +16,9 @@ const (
 	read_timeout=11
 	write_timeout=11
 	static_file_dir=web/img-mngr/
+	[library]
+	library_root=/tmp
+	support_png=true
 	`
 	fullConfig = mandatoryConfig + `[log]
 	filename=/var/log/golang-url-shortener.log
@@ -48,6 +51,9 @@ func TestGetConfiguration_Mandatory(t *testing.T) {
 	}
 	if config.IsLoggerConfigAvailable() {
 		t.Error("Unexpected logger configuration")
+	}
+	if config.GetLibraryRoot() != "/tmp" {
+		t.Error("Unexpected library root!")
 	}
 }
 

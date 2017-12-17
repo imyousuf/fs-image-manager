@@ -18,3 +18,4 @@ fs-image-manager:
     - ./Makefile:/go/src/github.com/imyousuf/fs-image-manager/Makefile
     - ./app:/go/src/github.com/imyousuf/fs-image-manager/app/
     - ./web:/go/src/github.com/imyousuf/fs-image-manager/web/
+    - ~/Pictures/:/path/to/images_dir

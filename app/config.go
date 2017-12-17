@@ -49,6 +49,12 @@ type DBConfig interface {
 	GetDBConnectionURL() string
 }
 
+// LibraryConfig represents the API for library related configuration
+type LibraryConfig interface {
+	GetLibraryRoot() string
+	IsPNGSupported() bool
+}
+
 // Config represents the configuration for the application
 type Config struct {
 	dbDialect              string
@@ -62,6 +68,17 @@ type Config struct {
 	maxBackups             int
 	maxAge                 int
 	compressBackupsEnabled bool
+	libraryRoot            string
+	pngSupported           bool
+}
+
+// GetLibraryRoot retrieves the root directory of the library
+func (config *Config) GetLibraryRoot() string {
+	return config.libraryRoot
+}
+
+func (config *Config) IsPNGSupported() bool {
+	return config.pngSupported
 }
 
 // GetDBDialect retrieves the dialect for the db
@@ -156,7 +173,34 @@ func GetConfiguration(configFilePath string) (*Config, error) {
 	if logConfSetupErr != nil {
 		return EmptyConfigurationForError, logConfSetupErr
 	}
+	libConfSetupErr := setupLibraryConfiguration(cfg, configuration)
+	if libConfSetupErr != nil {
+		return EmptyConfigurationForError, libConfSetupErr
+	}
 	return configuration, nil
+}
+
+func setupLibraryConfiguration(cfg *ini.File, configuration *Config) error {
+	libSection, secErr := cfg.GetSection("library")
+	if secErr != nil {
+		return secErr
+	}
+	libraryRoot, libRootErr := libSection.GetKey("library_root")
+	if libRootErr != nil {
+		return libRootErr
+	}
+	if fi, err := os.Stat(libraryRoot.String()); os.IsNotExist(err) {
+		return err
+	} else if !fi.IsDir() {
+		return errors.New("Library Root ('library_root') must be a directory. " + libraryRoot.String())
+	}
+	configuration.libraryRoot = libraryRoot.String()
+	pngSupport, pngSupportConfErr := libSection.GetKey("support_png")
+	if pngSupportConfErr != nil {
+		return pngSupportConfErr
+	}
+	configuration.pngSupported = pngSupport.MustBool(false)
+	return nil
 }
 
 func setupStorageConfiguration(cfg *ini.File, configuration *Config) error {

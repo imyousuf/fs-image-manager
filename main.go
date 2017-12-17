@@ -29,7 +29,7 @@ func main() {
 	services.InitAndCheckDBConnection(config)
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
-	server := controllers.ConfigureWebAPI(config)
+	server := controllers.ConfigureWebAPI(config, config)
 	go func() {
 		log.Println("Listening to http at -", config.GetHTTPListeningAddr())
 		fmt.Println("Listening to http at -", config.GetHTTPListeningAddr())
