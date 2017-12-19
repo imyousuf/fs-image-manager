@@ -42,5 +42,11 @@ clean:
 travis-docker-push:
 	sudo pip install "https://s3.amazonaws.com/install.newscred.com/docker-tools/nc-docker-tools-0.2.dev0.tar.gz"
 	docker login -u $(DOCKER_USER) -p $(DOCKER_PASS)
-	docker-helper push
-	-test -n "$(TRAVIS_TAG)" && ECR_DEFAULT_TAG="$(TRAVIS_TAG)" docker-helper push
+	ifeq ($(TRAVIS_BRANCH), "master")
+		docker-helper push
+	endif
+	ifdef $(TRAVIS_TAG)
+		ifneq ($(TRAVIS_TAG), "")
+			-ECR_DEFAULT_TAG="$(TRAVIS_TAG)" docker-helper push
+		endif
+	endif
