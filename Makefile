@@ -41,6 +41,5 @@ clean:
 # This target is for Travis CI use only
 travis-docker-push:
 	sudo pip install "https://s3.amazonaws.com/install.newscred.com/docker-tools/nc-docker-tools-0.2.dev0.tar.gz"
-	docker pull imyousuf/fs-image-manager
-	docker-helper push
+	docker pull imyousuf/fs-image-manager && docker-helper push
 	newTag=$(git describe --exact-match --tags $(git log -n1 --pretty='%h')) && test -n $newTag && ECR_DEFAULT_TAG="$newTag" && docker-helper push
