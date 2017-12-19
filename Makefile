@@ -1,4 +1,4 @@
-all: clean dep-tools deps test build
+all: clean dep-tools deps test build travis-docker-push
 
 deps:
 	dep ensure -vendor-only
@@ -37,3 +37,9 @@ setup-docker:
 clean:
 	-rm -vrf ./dist/
 	-rm -v fs-image-manager
+
+# This target is for Travis CI use only
+travis-docker-push:
+  pip install "https://s3.amazonaws.com/install.newscred.com/docker-tools/nc-docker-tools-0.2.dev0.tar.gz"
+  docker-helper push
+	newTag=$(git describe --exact-match --tags $(git log -n1 --pretty='%h')) && test -n $newTag && ECR_DEFAULT_TAG="$newTag" && docker-helper push
