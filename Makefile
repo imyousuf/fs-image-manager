@@ -41,6 +41,6 @@ clean:
 # This target is for Travis CI use only
 travis-docker-push:
 	sudo pip install "https://s3.amazonaws.com/install.newscred.com/docker-tools/nc-docker-tools-0.2.dev0.tar.gz"
-	docker login -e "$DOCKER_EMAIL" -u "$DOCKER_USER" -p "$DOCKER_PASS"
+	docker login -u "$DOCKER_USER" -p "$DOCKER_PASS"
 	docker-helper push
 	newTag=$(git describe --exact-match --tags $(git log -n1 --pretty='%h')) && test -n $newTag && ECR_DEFAULT_TAG="$newTag" && docker-helper push
