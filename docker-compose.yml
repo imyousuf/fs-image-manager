@@ -8,7 +8,7 @@ img-mngr-mysql:
     MYSQL_PASSWORD: zxc909zxc
 
 fs-image-manager:
-  build: ./
+  image: imyousuf/fs-image-manager:latest
   links:
     - img-mngr-mysql:mysql
   ports:
