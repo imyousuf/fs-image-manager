@@ -2,9 +2,11 @@ package services
 
 import (
 	"errors"
+	"log"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jinzhu/gorm"
 )
 
 // Device represents the device browsed from
@@ -41,8 +43,36 @@ func (device *Device) CreatedAt() time.Time {
 	return device.createdAt
 }
 
+// UpdatedAt returns when this device was last updated
 func (device *Device) UpdatedAt() time.Time {
 	return device.lastUpdatedAt
+}
+
+// RecordDownload registers the download to the specific device
+func (device *Device) RecordDownload(downloadPaths []string) (*DownloadHistory, error) {
+	return recordDownload(device, downloadPaths)
+}
+
+// GetDownloads returns when downloads where performed from this device
+func (device *Device) GetDownloads() []DownloadHistory {
+	_, db, err := getDeviceModelByDeviceID(device.deviceID)
+	if err != nil {
+		log.Println(err)
+		return make([]DownloadHistory, 0, 0)
+	}
+	assoc := db.Association("Downloads")
+	log.Println("Downloads found", assoc.Count())
+	downloadModels := make([]DownloadHistoryModel, 0, assoc.Count())
+	assocRes := assoc.Find(&downloadModels)
+	if assocRes.Error != nil {
+		log.Println(assocRes.Error)
+	}
+	log.Println(downloadModels)
+	downloads := make([]DownloadHistory, 0, len(downloadModels))
+	for _, downloadHistoryModel := range downloadModels {
+		downloads = append(downloads, *getDownloadHistoryFromModel(&downloadHistoryModel))
+	}
+	return downloads
 }
 
 // UpdateDeviceWithNewCookie updates the cookie of the device
@@ -81,10 +111,9 @@ func saveDevice(device *Device) error {
 }
 
 func updateDevice(device *Device) error {
-	deviceModel := &DeviceModel{}
-	GetDB().Where(&DeviceModel{DeviceID: device.GetDeviceID()}).First(deviceModel)
-	if GetDB().NewRecord(deviceModel) {
-		return errors.New("Trying to update device that is non-existent: " + device.GetDeviceID())
+	deviceModel, _, err := getDeviceModelByDeviceID(device.GetDeviceID())
+	if err != nil {
+		return err
 	}
 	deviceModel.CurrentCookieValue = device.currentCookieValue
 	deviceModel.CurrentCookieValidTill = device.currentCookieValidTill
@@ -95,6 +124,24 @@ func updateDevice(device *Device) error {
 	}
 	device.lastUpdatedAt = deviceModel.UpdatedAt
 	return nil
+}
+
+func getDeviceModelByDeviceID(deviceID string) (*DeviceModel, *gorm.DB, error) {
+	deviceModel := &DeviceModel{}
+	dbRes := GetDB().Where(&DeviceModel{DeviceID: deviceID}).First(deviceModel)
+	if GetDB().NewRecord(deviceModel) {
+		return new(DeviceModel), dbRes, errors.New("Trying to update device that is non-existent: " + deviceID)
+	}
+	return deviceModel, dbRes, nil
+}
+
+// GetDeviceByDeviceID retrieves the specific device as specified by deviceID
+func GetDeviceByDeviceID(deviceID string) (*Device, bool) {
+	deviceModel, _, err := getDeviceModelByDeviceID(deviceID)
+	if err != nil {
+		return nil, false
+	}
+	return getDeviceModelToDevice(deviceModel), true
 }
 
 // GetDevice retrieves the device for which

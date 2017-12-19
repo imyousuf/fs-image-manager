@@ -1,5 +1,9 @@
 package controllers
 
+import (
+	"time"
+)
+
 // RootResource represents the successful response to a "/access" API
 type RootResource struct {
 	MediaURI           string
@@ -25,4 +29,10 @@ type ImageResource struct {
 type ListResource struct {
 	Directories []DirectoryResource
 	Images      []ImageResource
+}
+
+// DownloadHistoryResource represents a single download instance
+type DownloadHistoryResource struct {
+	DownloadedAt    time.Time
+	DownloadedFiles []string
 }

@@ -46,9 +46,9 @@ func apiAccessHandler(w http.ResponseWriter, r *http.Request) {
 func sendURIsForDiscovery(device *services.Device, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set(contentTypeHeaderName, jsonMIMEType)
 	downloadHistoryURL, _ := getDownloadHistoryURL(device.GetDeviceID())
-	downloadURL, _ := getDownloadURL()
+	downloadURL, _ := getDownloadURL(device.GetDeviceID())
 	rootResource := &RootResource{DownloadHistoryURI: downloadHistoryURL.String(),
-		DownloadImagesURI: downloadURL.String()}
+		DownloadImagesURI: downloadURL.String(), MediaURI: getRootMediaURI()}
 	json.NewEncoder(w).Encode(*rootResource)
 }
 

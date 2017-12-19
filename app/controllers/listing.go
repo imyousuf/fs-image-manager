@@ -95,6 +95,11 @@ func getFolderListURI(path string) string {
 	return newURL.String()
 }
 
+func getRootMediaURI() string {
+	newURL, _ := apiRouter.Get(listMediaName).URL()
+	return newURL.String()
+}
+
 func listMediaHandler(w http.ResponseWriter, r *http.Request) {
 	routeVars := mux.Vars(r)
 	dirPath := libraryConfig.GetLibraryRoot() + routeVars[dirPathQueryParamKey]
