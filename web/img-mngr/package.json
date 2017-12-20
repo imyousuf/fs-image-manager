@@ -12,7 +12,8 @@
     "aurelia-animator-css": "^1.0.2",
     "bluebird": "^3.4.1",
     "requirejs": "^2.3.2",
-    "text": "github:requirejs/text#latest"
+    "text": "github:requirejs/text#latest",
+    "nprogress": "^0.2.0"
   },
   "peerDependencies": {},
   "devDependencies": {
