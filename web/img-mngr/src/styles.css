@@ -1,3 +1,19 @@
 #rootContainer {
-    margin-top: 35px;
+    margin-top: 2px;
+}
+
+.directories>.row {
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+.directories>.row>.col-xs-3 {
+    display: inline-block;
+    float: none;
+}
+
+.images>.image {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    overflow-x: hidden;
 }

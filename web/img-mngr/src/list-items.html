@@ -1,0 +1,17 @@
+<template>
+  <div with.one-way="media">
+    <div class="container directories">
+      <h3>Directories</h3>
+      <div class="row">
+        <div class="col-xs-3 directory" repeat.for="dir of Directories">
+          <a route-href="route: path; params.bind: {path:dir.ListURI}" click.delegate="click(dir)">${dir.Name}</a>
+        </div>
+      </div>
+    </div>
+    <div class="container images">
+      <h3>Images</h3>
+      <div class="col-md-3 image" repeat.for="img of Images">
+        <img alt="${img.Name}" src="${img.ThumbnailURL}" />
+      </div>
+    </div>
+  </div>
