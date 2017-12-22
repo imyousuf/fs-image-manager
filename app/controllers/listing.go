@@ -33,7 +33,7 @@ func getSupportedImageSuffixes() []string {
 
 func listDirectoriesAndImagesInPath(path string) ([]os.FileInfo, error) {
 	files, err := ioutil.ReadDir(path)
-	if err != nil {
+	if err == nil {
 		supportedSuffixes := getSupportedImageSuffixes()
 		filteredFiles := make([]os.FileInfo, 0, len(files))
 		for _, file := range files {
