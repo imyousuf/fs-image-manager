@@ -22,4 +22,10 @@ export class RootMedia {
         this.ea.publish(new DirectoryClicked(dir))
         return true;
     }
+
+    clickImage(img) {
+        this.ea.publish(new ImageClickedOn(img))
+        return true;
+    }
+
 }

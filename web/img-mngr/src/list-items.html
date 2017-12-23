@@ -11,7 +11,7 @@
     <div class="container images">
       <h3>Images</h3>
       <div class="col-md-3 image" repeat.for="img of Images">
-        <img alt="${img.Name}" src="${img.ThumbnailURL}" />
+        <img alt="${img.Name}" src="${img.ThumbnailURL}" click.delegate="clickImage(img)" />
       </div>
     </div>
   </div>

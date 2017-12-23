@@ -41,3 +41,21 @@
 .breadcrumbdir {
     font-size: 11px;
 }
+
+.downloadForm {
+    height: 100%;
+}
+
+.downloadForm>form {
+    height: inherit;
+}
+
+.downloadForm>form>input[type=button] {
+    margin-top: 20px;
+}
+
+.equal {
+    display: flex;
+    display: -webkit-flex;
+    flex-wrap: wrap;
+}

@@ -38,15 +38,8 @@ export class WebAPI {
     }
 
     getRootMedia() {
-        let loadRootMediaPromise;
+        let loadRootMediaPromise = this._getWrapperPromise();
         let self = this
-        if (this.isInitialized()) {
-            loadRootMediaPromise = new Promise((resolve) => {
-                resolve("done");
-            });
-        } else {
-            loadRootMediaPromise = this.init();
-        }
         return loadRootMediaPromise.then(() => {
             return self.http.get(self.mediaURI).then(data => {
                 return JSON.parse(data.response);
@@ -54,20 +47,33 @@ export class WebAPI {
         });
     }
 
-    getPathMedia(path) {
-        let loadRootMediaPromise;
-        let self = this
+    _getWrapperPromise() {
+        let initPromise;
         if (this.isInitialized()) {
-            loadRootMediaPromise = new Promise((resolve) => {
+            initPromise = new Promise((resolve) => {
                 resolve("done");
             });
         } else {
-            loadRootMediaPromise = this.init();
+            initPromise = this.init();
         }
+        return initPromise
+    }
+
+    getPathMedia(path) {
+        let loadRootMediaPromise = this._getWrapperPromise();
+        let self = this
         return loadRootMediaPromise.then(() => {
             return self.http.get(path).then(data => {
                 return JSON.parse(data.response);
             });
+        });
+    }
+
+    getDownloadURI() {
+        let initPromise = this._getWrapperPromise();
+        let self = this;
+        return initPromise.then(() => {
+            return self.downloadImagesURI
         });
     }
 }
