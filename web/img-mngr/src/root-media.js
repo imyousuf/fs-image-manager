@@ -15,7 +15,7 @@ export class RootMedia {
         });
     }
 
-    click(dir) {
+    clickDir(dir) {
         return true;
     }
 }

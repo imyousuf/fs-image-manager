@@ -2,7 +2,7 @@ import { WebAPI } from './web-api';
 export class App {
     static inject = [WebAPI]
     constructor(api) {
-        this.title = 'Image Browser';
+        this.title = 'Image Manager';
         this.api = api
     }
 

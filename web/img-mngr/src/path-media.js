@@ -11,24 +11,21 @@ export class PathMedia {
 
     activate(params) {
         this.path = params.path
-        console.log("PA! " + this.path)
     }
 
     deactivate() {
-        console.log("PD! " + this.path)
         this.pathListing = {}
         this.path = ""
     }
 
     bind() {
-        console.log("PB! " + this.path)
         let self = this
         self.api.getPathMedia(self.path).then(pathMedia => {
             self.pathListing = pathMedia;
         });
     }
 
-    click(dir) {
+    clickDir(dir) {
         this.path = dir.ListURI;
         this.bind();
         return true;

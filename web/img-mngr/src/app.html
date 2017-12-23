@@ -3,9 +3,18 @@
   <require from="./styles.css"></require>
 
   <div id="rootContainer" class="container">
-    <h1>${title}</h1>
-    <loading-indicator loading.bind="router.isNavigating || api.isRequesting"></loading-indicator>
     <div class="row">
+      <div class="col-md-4">
+          <h1><a route-href="route: rootPath">${title}</a></h1>
+      </div>
+      <div class="col-md-4"></div>
+      <download class="col-md-4 downloads"></download>
+    </div>
+    <div class="row">
+      <breadcrumbs class="col-md-12 breadcrumbs"></breadcrumbs>
+    </div>
+    <loading-indicator loading.bind="router.isNavigating || api.isRequesting"></loading-indicator>
+    <div class="container">
       <router-view class="col-md-12"></router-view>
     </div>
   </div>
