@@ -1,11 +1,13 @@
 <template>
   <require from="bootstrap/css/bootstrap.css"></require>
   <require from="./styles.css"></require>
+  <require from="./download"></require>
+  <require from="./breadcrumbs"></require>
 
   <div id="rootContainer" class="container">
     <div class="row">
       <div class="col-md-4">
-          <h1><a route-href="route: rootPath">${title}</a></h1>
+          <h1><a route-href="route: rootPath" click.delegate="clickHome()">${title}</a></h1>
       </div>
       <div class="col-md-4"></div>
       <download class="col-md-4 downloads"></download>

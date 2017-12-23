@@ -1,12 +1,18 @@
 import { WebAPI } from './web-api';
+import { EventAggregator } from 'aurelia-event-aggregator';
+import { DirectoryClicked, ImageClickedOn, BreadcrumbClicked } from './messages'
 
 export class PathMedia {
-    static inject = [WebAPI]
+    static inject = [WebAPI, EventAggregator]
     pathListing = {}
-    constructor(api) {
+    constructor(api, ea) {
         this.api = api;
+        this.ea = ea
         this.path = "";
-        console.log("PC!")
+        self = this;
+        this.ea.subscribe(BreadcrumbClicked, msg => {
+            self.clickDir(msg.directory)
+        })
     }
 
     activate(params) {
@@ -28,6 +34,7 @@ export class PathMedia {
     clickDir(dir) {
         this.path = dir.ListURI;
         this.bind();
+        this.ea.publish(new DirectoryClicked(dir))
         return true;
     }
 }
