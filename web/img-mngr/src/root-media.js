@@ -1,6 +1,6 @@
 import { WebAPI } from './web-api';
 import { EventAggregator } from 'aurelia-event-aggregator';
-import { DirectoryClicked, ImageClickedOn } from './messages'
+import { DirectoryClicked } from './messages'
 
 export class RootMedia {
     static inject = [WebAPI, EventAggregator]
@@ -17,15 +17,4 @@ export class RootMedia {
             self.rootListing = rootMedia;
         });
     }
-
-    clickDir(dir) {
-        this.ea.publish(new DirectoryClicked(dir))
-        return true;
-    }
-
-    clickImage(img) {
-        this.ea.publish(new ImageClickedOn(img))
-        return true;
-    }
-
 }

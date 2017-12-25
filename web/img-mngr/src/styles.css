@@ -38,6 +38,10 @@
     overflow-x: hidden;
 }
 
+.images>.image img {
+    height: 110px;
+}
+
 .breadcrumbdir {
     font-size: 11px;
 }
