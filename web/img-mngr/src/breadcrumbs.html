@@ -1,6 +1,6 @@
 <template>
   <span class="breadcrumbdir" with.one-way="dirs" repeat.for="dir of dirs">
-    <a route-href="route: path; params.bind: {path:dir.ListURI}" click.delegate="clickBreadcrumb(dir)">
+    <a route-href="route: path; params.bind: {path:dir.EncodedListURI}" click.delegate="clickBreadcrumb(dir)">
       ${dir.Name}</a>&nbsp;&gt;&nbsp;
   </span>
 </template>

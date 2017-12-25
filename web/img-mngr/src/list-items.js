@@ -9,16 +9,27 @@ export class ListItems {
         this.ea = ea
     }
     activate(model) {
+        if (model.media.Directories) {
+            for (var index = 0; index < model.media.Directories.length; ++index) {
+                let directory = model.media.Directories[index];
+                directory.EncodedListURI = encodeURIComponent(directory.ListURI);
+            };
+        }
         this.media = model.media
-    }
-    attached() {
-        console.log(window.jQuery);
         setTimeout(() => {
             this.blazy = new Blazy({
                 src: 'data-blazy'
             });
         }, 100);
     }
+    detached() {
+        this.blazy.destroy();
+    }
+
+    deactivate() {
+        this.detached();
+    }
+
     clickImage(img) {
         this.ea.publish(new ImageClickedOn(img));
         return true;
@@ -26,8 +37,6 @@ export class ListItems {
 
     clickDir(dir) {
         this.ea.publish(new DirectoryClicked(dir));
-        //FIXME: this should not be required
-        this.attached();
         return true;
     }
 }

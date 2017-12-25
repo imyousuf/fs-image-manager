@@ -14,7 +14,7 @@ export class App {
         config.title = 'Images';
         config.map([
             { route: '', moduleId: 'root-media', title: 'Root', name: 'rootPath' },
-            { route: 'path', moduleId: 'path-media', title: 'Path', name: 'path' }
+            { route: 'path/:path', moduleId: 'path-media', title: 'Path', name: 'path' }
         ]);
     }
 

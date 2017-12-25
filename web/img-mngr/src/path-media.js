@@ -9,29 +9,15 @@ export class PathMedia {
         this.api = api;
         this.ea = ea
         this.path = "";
-        self = this;
-        this.ea.subscribe(BreadcrumbClicked, msg => {
-            self.dirClicked(msg.directory);
-        });
-        //FIXME: this should not be required
-        this.ea.subscribe(DirectoryClicked, msg => {
-            self.dirClicked(msg.directory);
-        });
     }
 
     activate(params) {
-        this.path = params.path
+        this.path = decodeURIComponent(params.path);
+        this.bind();
     }
 
     deactivate() {
-        this.pathListing = {}
         this.path = ""
-    }
-
-    //FIXME: this should not be required
-    dirClicked(directory) {
-        this.path = directory.ListURI;
-        this.bind();
     }
 
     bind() {
@@ -39,5 +25,9 @@ export class PathMedia {
         self.api.getPathMedia(self.path).then(pathMedia => {
             self.pathListing = pathMedia;
         });
+    }
+
+    unbind() {
+        this.pathListing = {}
     }
 }

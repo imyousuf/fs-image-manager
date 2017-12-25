@@ -6,8 +6,7 @@ export class Breadcrumbs {
     dirs = []
     constructor(ea) {
         this.ea = ea
-        this.message = 'Hello world';
-        ea.subscribe(DirectoryClicked, msg => {
+        this.ea.subscribe(DirectoryClicked, msg => {
             let dir = msg.directory;
             let found = false;
             let foundIndex = -1;
@@ -29,6 +28,7 @@ export class Breadcrumbs {
     }
 
     clickBreadcrumb(dir) {
+        this.ea.publish(new DirectoryClicked(dir))
         this.ea.publish(new BreadcrumbClicked(dir))
         return true;
     }
