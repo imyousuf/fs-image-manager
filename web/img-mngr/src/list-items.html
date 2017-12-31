@@ -11,6 +11,7 @@
     <div class="container images">
       <h3>Images</h3>
       <div class="col-md-3 image" repeat.for="img of Images">
+        <span class="selection glyphicon glyphicon-ok" show.bind="img.Selected"></span>
         <img class="b-lazy" alt="${img.Name}" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
             data-blazy="${img.ThumbnailURL}" click.delegate="clickImage(img)" />
       </div>

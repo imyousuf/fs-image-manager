@@ -33,13 +33,24 @@
 }
 
 .images>.image {
+    position: relative;
     margin-top: 10px;
     margin-bottom: 10px;
+    height: 110px;
     overflow-x: hidden;
 }
 
 .images>.image img {
+    position: absolute;
     height: 110px;
+    z-index: 1;
+}
+
+.images>.image>.selection {
+    position: absolute;
+    z-index: 3;
+    top: 0;
+    left: 0;
 }
 
 .breadcrumbdir {

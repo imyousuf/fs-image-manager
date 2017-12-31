@@ -15,6 +15,7 @@ build-web:
 	cd web/img-mngr/ && au build --env prod
 	cp ./web/img-mngr/index.html ./dist/web/img-mngr/
 	cp -r ./web/img-mngr/scripts/ ./dist/web/img-mngr/
+	cp -r ./web/img-mngr/bootstrap/ ./dist/web/img-mngr/
 
 build: build-web
 	go build

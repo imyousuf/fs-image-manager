@@ -1,6 +1,6 @@
 import { WebAPI } from "./web-api";
 import { EventAggregator } from 'aurelia-event-aggregator';
-import { ImageClickedOn } from "./messages";
+import { ImageClickedOn, ViewPaneChangeCompleted, CurrentSelection } from "./messages";
 
 export class Download {
     static inject = [WebAPI, EventAggregator]
@@ -29,6 +29,16 @@ export class Download {
                 this.disableButtons = true;
             }
         });
+        let self = this;
+        this.ea.subscribe(ViewPaneChangeCompleted, msg => {
+            self._publishSelection();
+        });
+    }
+
+    _publishSelection() {
+        if (this.selectedImages && this.selectedImages.length >= 0) {
+            this.ea.publish(new CurrentSelection(this.selectedImages));
+        }
     }
 
     bind() {
@@ -45,6 +55,7 @@ export class Download {
     clearSelection() {
         this.selectedImages.splice(0, this.selectedImages.length);
         this.disableButtons = true;
+        this._publishSelection();
         return true;
     }
 }
