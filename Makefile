@@ -41,7 +41,7 @@ clean:
 
 # This target is for docker dev env
 setup-docker-dev:
-  (cd dist && mv web webx && ln -s ../web/ .)
+	(cd dist && mv web webx && ln -s ../web/ .)
 
 # This target is for Travis CI use only
 travis-docker-push:
