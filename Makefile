@@ -39,6 +39,10 @@ clean:
 	-rm -vrf ./dist/
 	-rm -v fs-image-manager
 
+# This target is for docker dev env
+setup-docker-dev:
+  (cd dist && mv web webx && ln -s ../web/ .)
+
 # This target is for Travis CI use only
 travis-docker-push:
 	sudo pip install "https://s3.amazonaws.com/install.newscred.com/docker-tools/nc-docker-tools-0.2.dev0.tar.gz"
