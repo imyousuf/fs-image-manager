@@ -1,12 +1,13 @@
-golang-url-shortener
+custom-scripts/*
 vendor/*
 web/img-mngr/node_modules/*
 web/img-mngr/scripts/*
 web/img-mngr/.vscode/*
 dist/*
-url-shortener.cfg
+image-manager.cfg
 Dockerfile
 docker-compose.yml
+docker-compose.override.yml
 *docker-helper-config
 *dockerignore
 *gitignore

@@ -18,6 +18,7 @@ What the `make` command here does is, moves the built web project (minified JS a
 If you notice the docker-compose file all the meaningful source code is already "mounted" into the container, so if you change your source code they should reflect in there; but for **aurelia** to build the frontend code, we will need to run its builder. We can do that -
 ```
 docker exec -it $(docker ps --filter "ancestor=imyousuf/fs-image-manager:latest" -q) bash
+cd web/img-mngr/
 au build --watch
 ```
 This should build the frontend source code every time it changes.
@@ -32,4 +33,6 @@ Please use `CTRL+C` to exit the backend process. If you want to see the backend 
 apk add nano
 nano dist/image-manager.cfg
 ```
+These commands (except for config edit) are summarized in [this](https://gist.github.com/imyousuf/0e515fc9bcd5ff03f7967a1ea9f11128) script. When using this script you may mount it into the container using `docker-compose.override.yml` and you use `custom-scripts` directory to keep the script in the codebase. Both of these paths are ignored in git and docker.
+
 Please note that docker-compose also mounts the **Pictures** directory in *User Home* to serve images in the app; please use docker-compose override mechanism to point to the right test image storage location locally.
