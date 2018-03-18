@@ -7,8 +7,7 @@ export class RootMedia {
     rootListing = {}
     constructor(api, ea) {
         this.api = api;
-        this.ea = ea
-        this.message = 'Hello world';
+        this.ea = ea;
     }
 
     bind() {
