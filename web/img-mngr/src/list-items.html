@@ -1,6 +1,6 @@
 <template>
-  <div with.one-way="media">
-    <div class="container directories">
+  <div if.bind="media.Images.length" with.one-way="media">
+    <div show.bind="Directories.length" class="container directories">
       <h3>Directories</h3>
       <div class="row">
         <div class="col-xs-3 directory" repeat.for="dir of Directories">
@@ -14,6 +14,16 @@
         <span class="selection glyphicon glyphicon-ok" show.bind="img.Selected"></span>
         <img class="b-lazy" alt="${img.Name}" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
             data-blazy="${img.ThumbnailURL}" click.delegate="clickImage(img)" />
+      </div>
+    </div>
+  </div>
+  <div else with.one-way="media">
+    <div class="container only-directories">
+      <h3>Directories</h3>
+      <div class="directories-container">
+        <div class="col-xs-3 directory" repeat.for="dir of Directories">
+          <a route-href="route: path; params.bind: {path:dir.EncodedListURI}" click.delegate="clickDir(dir)">${dir.Name}</a>
+        </div>
       </div>
     </div>
   </div>
