@@ -75,12 +75,44 @@
     height: inherit;
 }
 
-.downloadForm>form>input[type=button] {
+.downloadForm>form>input[type=button],
+.downloadForm>form>input[type=submit] {
     margin-top: 20px;
+    margin-right: 3px;
+    margin-left: 3px;
+    float: right;
 }
 
 .equal {
     display: flex;
     display: -webkit-flex;
     flex-wrap: wrap;
+}
+
+.breadcrumbs {
+    padding-left: 17px;
+}
+
+.downloads {
+    float: right;
+}
+
+.header {
+    width: inherit;
+    margin: 0 0 0 0;
+    padding-left: 70px;
+    padding-right: 70px;
+}
+
+.floater {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    z-index: 100;
+    background-color: white;
+}
+
+.dmz {
+    margin-top: 80px;
 }

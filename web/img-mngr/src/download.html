@@ -2,7 +2,7 @@
   <div class="downloadForm">
     <form method="POST" target="_blank" action="${downloadURI}">
       <input name="downloadFile" type="hidden" repeat.for="img of selectedImages" value="${img.DownloadID}" />
-      <input type="submit" value="Download ${selectedImages.length} Image(s)" disabled.bind="disableButtons" />
+      <input type="submit" value="Download ${selectedImages.length} Images" disabled.bind="disableButtons" />
       <input type="button" value="Clear Selections" click.delegate="clearSelection()"  disabled.bind="disableButtons" />
     </form>
   </div>
