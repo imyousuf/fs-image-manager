@@ -1,5 +1,5 @@
 import { EventAggregator } from 'aurelia-event-aggregator';
-import { DirectoryClicked, HomeClicked, BreadcrumbClicked } from './messages'
+import { DirectoryClicked, HomeClicked, BreadcrumbClicked } from '../../messages'
 
 export class Breadcrumbs {
     static inject = [EventAggregator]

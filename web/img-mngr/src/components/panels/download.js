@@ -1,6 +1,6 @@
-import { WebAPI } from "./web-api";
+import { WebAPI } from "../../web-api";
 import { EventAggregator } from 'aurelia-event-aggregator';
-import { ImageClickedOn, ViewPaneChangeCompleted, CurrentSelection } from "./messages";
+import { ImageClickedOn, ViewPaneChangeCompleted, CurrentSelection } from "../../messages";
 
 export class Download {
     static inject = [WebAPI, EventAggregator]
