@@ -1,7 +1,7 @@
-import { DirectoryClicked, ImageClickedOn, ViewPaneChangeCompleted, CurrentSelection } from './messages'
+import { DirectoryClicked, ImageClickedOn, ViewPaneChangeCompleted, CurrentSelection } from '../../messages'
 import { EventAggregator } from 'aurelia-event-aggregator';
 import { DialogService } from 'aurelia-dialog';
-import { ImageDetail } from 'components/dialogs/image-detail';
+import { ImageDetail } from '../dialogs/image-detail';
 import Blazy from "blazy";
 
 export class ListItems {
