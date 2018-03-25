@@ -1,6 +1,6 @@
-import { WebAPI } from './web-api';
+import { WebAPI } from '../../web-api';
 import { EventAggregator } from 'aurelia-event-aggregator';
-import { DirectoryClicked } from './messages'
+import { DirectoryClicked } from '../../messages'
 
 export class RootMedia {
     static inject = [WebAPI, EventAggregator]
