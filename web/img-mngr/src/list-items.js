@@ -1,12 +1,15 @@
 import { DirectoryClicked, ImageClickedOn, ViewPaneChangeCompleted, CurrentSelection } from './messages'
 import { EventAggregator } from 'aurelia-event-aggregator';
+import { DialogService } from 'aurelia-dialog';
+import { ImageDetail } from 'components/dialogs/image-detail';
 import Blazy from "blazy";
 
 export class ListItems {
-    static inject = [EventAggregator]
-    constructor(ea) {
+    static inject = [EventAggregator, DialogService]
+    constructor(ea, dialogService) {
         this.media = {};
         this.ea = ea;
+        this.dialogService = dialogService;
         let self = this;
         this.ea.subscribe(CurrentSelection, msg => {
             if (self.media.Images) {
@@ -61,6 +64,18 @@ export class ListItems {
     clickImage(img) {
         img.Selected = !img.Selected;
         this.ea.publish(new ImageClickedOn(img));
+        return true;
+    }
+
+    doubleClickImage(img) {
+        this.dialogService.open({ viewModel: ImageDetail, model: img, lock: false }).whenClosed(response => {
+            if (!response.wasCancelled) {
+                console.log('Image dialog closed');
+            } else {
+                console.log('Unexpected image dialog close');
+            }
+            console.log(response.output);
+        });
         return true;
     }
 
