@@ -1,8 +1,9 @@
 package controllers
 
 import (
-	"image"
 	"image/jpeg"
+
+	"github.com/disintegration/imageorient"
 	// Import PNG package so that it can decode PNG images
 	_ "image/png"
 	"log"
@@ -32,7 +33,7 @@ func imageScalingHandler(w http.ResponseWriter, r *http.Request) {
 	heightStr := queryParams.Get(imageScaleHeightQueryParam)
 	log.Println("Image trying to scale:", imagePath, widthStr, heightStr)
 	if imgFile, err := os.Open(libraryConfig.GetLibraryRoot() + imagePath); err == nil {
-		if img, _, err := image.Decode(imgFile); err == nil {
+		if img, _, err := imageorient.Decode(imgFile); err == nil {
 			var width, height int
 			var iErr error
 			if width, iErr = strconv.Atoi(widthStr); iErr != nil {

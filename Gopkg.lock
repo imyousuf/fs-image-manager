@@ -2,6 +2,18 @@
 
 
 [[projects]]
+  name = "github.com/disintegration/gift"
+  packages = ["."]
+  revision = "6844aa0778953d7137510a1c74f686ae0e556600"
+  version = "v1.1.2"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/disintegration/imageorient"
+  packages = ["."]
+  revision = "1732376a371181e9232837e4fb9ac0e06e5fba71"
+
+[[projects]]
   name = "github.com/go-ini/ini"
   packages = ["."]
   revision = "32e4c1e6bc4e7d0d8451aa6b75200d19e37a536a"
@@ -62,6 +74,12 @@
   revision = "891127d8d1b52734debe1b3c3d7e747502b6c366"
 
 [[projects]]
+  branch = "go1"
+  name = "github.com/rwcarlsen/goexif"
+  packages = ["exif","tiff"]
+  revision = "17202558c8d9c3fd047859f1a5e73fd9ae709187"
+
+[[projects]]
   branch = "master"
   name = "golang.org/x/net"
   packages = ["context"]
@@ -76,6 +94,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "7211b59909ecbae379f3054c3f5ae50d5928fd19256715dcc3c7187e7e4c4995"
+  inputs-digest = "4206a4c4a2d77fe0b075f7920470e619bd510c042557709ea6ee738adbea86ee"
   solver-name = "gps-cdcl"
   solver-version = 1

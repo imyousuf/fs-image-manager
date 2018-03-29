@@ -1,7 +1,7 @@
 all: clean dep-tools deps test build travis-docker-push
 
 deps:
-	dep ensure -vendor-only
+	dep ensure -v -vendor-only
 	( \
 		cd web/img-mngr/ && npm install \
 	)
