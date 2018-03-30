@@ -4,8 +4,8 @@ connection_url=admin:zxc909zxc@tcp(mysql:3306)/img_mngr?charset=utf8&parseTime=T
 
 [http]
 listener=:8080
-read_timeout=10
-write_timeout=10
+read_timeout=240
+write_timeout=240
 static_file_dir=web/img-mngr/
 
 [library]
