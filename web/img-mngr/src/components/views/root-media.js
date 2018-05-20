@@ -1,6 +1,5 @@
 import { WebAPI } from '../../web-api';
 import { EventAggregator } from 'aurelia-event-aggregator';
-import { DirectoryClicked } from '../../messages'
 
 export class RootMedia {
     static inject = [WebAPI, EventAggregator]
@@ -11,7 +10,7 @@ export class RootMedia {
     }
 
     bind() {
-        let self = this
+        let self = this;
         self.api.getRootMedia().then(rootMedia => {
             self.rootListing = rootMedia;
         });
