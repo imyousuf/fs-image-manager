@@ -1,8 +1,8 @@
-import { DirectoryClicked, ImageClickedOn, ViewPaneChangeCompleted, CurrentSelection } from '../../messages'
+import { DirectoryClicked, ImageClickedOn, ViewPaneChangeCompleted, CurrentSelection } from '../../messages';
 import { EventAggregator } from 'aurelia-event-aggregator';
 import { DialogService } from 'aurelia-dialog';
 import { ImageDetail } from '../dialogs/image-detail';
-import Blazy from "blazy";
+import Blazy from 'blazy';
 
 export class ListItems {
     static inject = [EventAggregator, DialogService]
@@ -15,11 +15,11 @@ export class ListItems {
             if (self.media.Images) {
                 let selectedImages = msg.selectedImages;
                 let model = self;
-                for (var index = 0; index < model.media.Images.length; ++index) {
+                for (let index = 0; index < model.media.Images.length; ++index) {
                     let image = model.media.Images[index];
                     let imageFound = false;
-                    for (var sIndex = 0; sIndex < selectedImages.length; ++sIndex) {
-                        if (image.DownloadID == selectedImages[sIndex].DownloadID) {
+                    for (let sIndex = 0; sIndex < selectedImages.length; ++sIndex) {
+                        if (image.DownloadID === selectedImages[sIndex].DownloadID) {
                             image.Selected = true;
                             imageFound = true;
                         }
@@ -33,18 +33,18 @@ export class ListItems {
     }
     activate(model) {
         if (model.media.Directories) {
-            for (var index = 0; index < model.media.Directories.length; ++index) {
+            for (let index = 0; index < model.media.Directories.length; ++index) {
                 let directory = model.media.Directories[index];
                 directory.EncodedListURI = encodeURIComponent(directory.ListURI);
-            };
+            }
         }
         if (model.media.Images) {
-            for (var index = 0; index < model.media.Images.length; ++index) {
+            for (let index = 0; index < model.media.Images.length; ++index) {
                 let image = model.media.Images[index];
                 image.Selected = false;
             }
         }
-        this.media = model.media
+        this.media = model.media;
         let self = this;
         setTimeout(() => {
             self.blazy = new Blazy({

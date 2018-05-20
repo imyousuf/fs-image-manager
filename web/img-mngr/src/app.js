@@ -1,13 +1,13 @@
 import { WebAPI } from './web-api';
 import { EventAggregator } from 'aurelia-event-aggregator';
-import { HomeClicked } from './messages'
+import { HomeClicked } from './messages';
 
 export class App {
     static inject = [WebAPI, EventAggregator]
     constructor(api, ea) {
         this.title = 'Image Manager';
-        this.ea = ea
-        this.api = api
+        this.ea = ea;
+        this.api = api;
     }
 
     configureRouter(config, router) {
