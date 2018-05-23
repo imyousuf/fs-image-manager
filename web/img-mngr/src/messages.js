@@ -29,3 +29,7 @@ export class CurrentSelection {
         this.selectedImages = selectedImages;
     }
 }
+
+export class BackButtonClicked {
+    constructor() {}
+}
