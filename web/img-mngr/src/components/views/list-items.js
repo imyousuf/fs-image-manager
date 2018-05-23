@@ -68,7 +68,9 @@ export class ListItems {
     }
 
     doubleClickImage(img) {
-        this.dialogService.open({ viewModel: ImageDetail, model: img, lock: false }).whenClosed(response => {
+        this.dialogService.open({ viewModel: ImageDetail, model: img, lock: false, position: (modalContainer, modalOverlay) => {
+            modalContainer.scrollIntoView();
+        } }).whenClosed(response => {
             if (!response.wasCancelled) {
                 console.log('Image dialog closed');
             } else {
