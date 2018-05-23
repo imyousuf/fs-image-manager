@@ -36,13 +36,10 @@ export class WebAPI {
     }
 
     getRootMedia() {
-        let loadRootMediaPromise = this._getWrapperPromise();
         let self = this;
-        return loadRootMediaPromise.then(() => {
-            return self.http.get(self.mediaURI).then(data => {
-                return JSON.parse(data.response);
-            });
-        });
+        return this._getWrapperPromise()
+        .then(() => self.http.get(self.mediaURI))
+        .then(data => JSON.parse(data.response));
     }
 
     _getWrapperPromise() {
@@ -58,20 +55,14 @@ export class WebAPI {
     }
 
     getPathMedia(path) {
-        let loadRootMediaPromise = this._getWrapperPromise();
         let self = this;
-        return loadRootMediaPromise.then(() => {
-            return self.http.get(path).then(data => {
-                return JSON.parse(data.response);
-            });
-        });
+        return this._getWrapperPromise()
+        .then(() => self.http.get(path))
+        .then(data => JSON.parse(data.response));
     }
 
     getDownloadURI() {
-        let initPromise = this._getWrapperPromise();
         let self = this;
-        return initPromise.then(() => {
-            return self.downloadImagesURI;
-        });
+        return this._getWrapperPromise().then(() => self.downloadImagesURI);
     }
 }
