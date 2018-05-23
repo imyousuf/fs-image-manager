@@ -7,9 +7,13 @@
     "url": "???"
   },
   "license": "MIT",
+  "scripts": {
+    "au-update": "npm install aurelia-binding@latest aurelia-bootstrapper@latest aurelia-animator-css@latest aurelia-dialog@latest aurelia-http-client@latest aurelia-cli@latest aurelia-testing@latest aurelia-tools@latest"
+  },
   "dependencies": {
-    "aurelia-animator-css": "^1.0.2",
-    "aurelia-bootstrapper": "^2.1.1",
+    "aurelia-animator-css": "^1.0.4",
+    "aurelia-binding": "^2.0.0",
+    "aurelia-bootstrapper": "^2.2.0",
     "aurelia-dialog": "^1.0.0-rc.2.0.0",
     "aurelia-http-client": "^1.2.1",
     "blazy": "^1.8.2",
@@ -22,11 +26,10 @@
   },
   "peerDependencies": {},
   "devDependencies": {
-    "aurelia-binding": "^1.6.0",
-    "aurelia-cli": "^0.32.0",
-    "aurelia-testing": "^1.0.0-beta.3.0.1",
-    "aurelia-tools": "^1.0.0",
-    "babel-eslint": "^6.0.4",
+    "aurelia-cli": "^0.33.1",
+    "aurelia-testing": "^1.0.0-beta.4.0.0",
+    "aurelia-tools": "^2.0.0",
+    "babel-eslint": "^7.2.3",
     "babel-plugin-syntax-flow": "^6.8.0",
     "babel-plugin-transform-decorators-legacy": "^1.3.4",
     "babel-plugin-transform-es2015-modules-amd": "^6.8.0",
