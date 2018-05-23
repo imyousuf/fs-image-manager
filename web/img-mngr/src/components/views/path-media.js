@@ -1,12 +1,15 @@
 import { WebAPI } from '../../web-api';
+import { BackButtonClicked } from '../../messages';
 import { EventAggregator } from 'aurelia-event-aggregator';
+import { Router } from 'aurelia-router';
 
 export class PathMedia {
-    static inject = [WebAPI, EventAggregator]
+    static inject = [WebAPI, EventAggregator, Router]
     pathListing = {}
-    constructor(api, ea) {
+    constructor(api, ea, router) {
         this.api = api;
         this.ea = ea;
+        this.router = router;
         this.path = '';
     }
 
@@ -15,8 +18,18 @@ export class PathMedia {
         this.bind();
     }
 
+    canDeactivate() {
+        if (this.router.isNavigatingForward) {
+            return false;
+        }
+        return true;
+    }
+
     deactivate() {
         this.path = '';
+        if (this.router.isNavigatingBack) {
+            this.ea.publish(new BackButtonClicked());
+        }
     }
 
     bind() {

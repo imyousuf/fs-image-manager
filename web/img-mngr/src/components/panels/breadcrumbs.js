@@ -1,5 +1,5 @@
 import { EventAggregator } from 'aurelia-event-aggregator';
-import { DirectoryClicked, HomeClicked, BreadcrumbClicked } from '../../messages';
+import { DirectoryClicked, HomeClicked, BreadcrumbClicked, BackButtonClicked } from '../../messages';
 
 export class Breadcrumbs {
     static inject = [EventAggregator]
@@ -18,6 +18,9 @@ export class Breadcrumbs {
         });
         ea.subscribe(HomeClicked, msg => {
             this.dirs.splice(0, this.dirs.length);
+        });
+        ea.subscribe(BackButtonClicked, msg => {
+            this.dirs.pop();
         });
     }
 
