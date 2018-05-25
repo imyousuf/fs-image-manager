@@ -1,12 +1,16 @@
 import { DialogController } from 'aurelia-dialog';
 import { DOM } from 'aurelia-pal';
+import { ImageClickedOn } from '../../messages';
+import { EventAggregator } from 'aurelia-event-aggregator';
+
 
 export class ImageDetail {
-    static inject = [DialogController];
-    image = { Name: '', ImageURL: '', ThumbnailURL: '', DownloadID: '', next: null, previous: null };
-    constructor(controller) {
+    static inject = [DialogController, EventAggregator];
+    image = { Name: '', ImageURL: '', ThumbnailURL: '', DownloadID: '', next: null, previous: null, Selected: false };
+    constructor(controller, ea) {
         this.controller = controller;
         this.image = null;
+        this.ea = ea;
         let self = this;
         this.keyboardEventHandler = (keyboardEvent) => {
             // console.log('KeyBoard Event for image scrolling');
@@ -14,6 +18,8 @@ export class ImageDetail {
                 self.next();
             } else if (keyboardEvent.keyCode === 37) {
                 self.previous();
+            } else if (keyboardEvent.keyCode === 32) {
+                self.invertSelection();
             }
         };
     }
@@ -25,6 +31,15 @@ export class ImageDetail {
 
     deactivate() {
         DOM.removeEventListener('keyup', this.keyboardEventHandler, false);
+    }
+
+    invertSelection() {
+        this.image.Selected = !this.image.Selected;
+        this.selectorClicked();
+    }
+
+    selectorClicked() {
+        this.ea.publish(new ImageClickedOn(this.image));
     }
 
     next() {

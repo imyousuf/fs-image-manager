@@ -123,6 +123,11 @@
     clear: both;
 }
 
+.image-detail-modal-footer>.image-detail-modal-selector>label {
+    float: left;
+    margin-top: 10px;
+}
+
 @media screen and (max-width: 735px) {
     .downloadForm>form>input[type=button],
     .downloadForm>form>input[type=submit] {

@@ -8,9 +8,19 @@
       </ux-dialog-body>
 
       <ux-dialog-footer>
-        <button click.trigger="previous()">Previous</button>
-        <button click.trigger="next()">Next</button>
-        <button click.trigger="controller.cancel()">Cancel</button>
+        <div class="image-detail-modal-footer row">
+          <div class="image-detail-modal-selector col-xs-6">
+            <label>
+              <input type="checkbox" checked.bind="image.Selected" change.trigger="selectorClicked()" />
+              Is Selected
+            </label>
+          </div>
+          <div class="image-detail-modal-controls col-xs-6">
+            <button click.trigger="previous()">Previous</button>
+            <button click.trigger="next()">Next</button>
+            <button click.trigger="controller.cancel()">Cancel</button>
+          </div>
+        </div>
       </ux-dialog-footer>
     </ux-dialog>
   </template>
