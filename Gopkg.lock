@@ -2,6 +2,12 @@
 
 
 [[projects]]
+  name = "github.com/cenkalti/backoff"
+  packages = ["."]
+  revision = "2ea60e5f094469f9e65adb9cd103795b73ae743e"
+  version = "v2.0.0"
+
+[[projects]]
   name = "github.com/disintegration/gift"
   packages = ["."]
   revision = "6844aa0778953d7137510a1c74f686ae0e556600"
@@ -94,6 +100,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "4206a4c4a2d77fe0b075f7920470e619bd510c042557709ea6ee738adbea86ee"
+  inputs-digest = "3cb5cb4e5eba6f0cd7454513ec98354a0110c72dce705e34ca8f3fa9ce0cbb76"
   solver-name = "gps-cdcl"
   solver-version = 1

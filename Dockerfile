@@ -14,4 +14,4 @@ ENV CHROME_PATH=/usr/lib/chromium/
 ADD . .
 RUN make test install setup-docker
 EXPOSE 8080
-CMD ["fs-image-manager"]
+CMD ["fs-image-manager", "-config", "./dist/image-manager.cfg"]
