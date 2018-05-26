@@ -6,21 +6,25 @@ export class Breadcrumbs {
     dirs = []
     constructor(ea) {
         this.ea = ea;
+        this._setupSubscribers();
+    }
+
+    _setupSubscribers() {
         let breadcrumb = this;
         this.ea.subscribe(DirectoryClicked, msg => {
             let dir = msg.directory;
             let foundIndex = breadcrumb._findIndex(dir);
             if (foundIndex <= -1) {
-                this.dirs.push(dir);
+                breadcrumb.dirs.push(dir);
             } else {
-                this.dirs.splice(foundIndex + 1, this.dirs.length - foundIndex - 1);
+                breadcrumb.dirs.splice(foundIndex + 1, breadcrumb.dirs.length - foundIndex - 1);
             }
         });
-        ea.subscribe(HomeClicked, msg => {
-            this.dirs.splice(0, this.dirs.length);
+        this.ea.subscribe(HomeClicked, msg => {
+            breadcrumb.dirs.splice(0, breadcrumb.dirs.length);
         });
-        ea.subscribe(BackButtonClicked, msg => {
-            this.dirs.pop();
+        this.ea.subscribe(BackButtonClicked, msg => {
+            breadcrumb.dirs.pop();
         });
     }
 
