@@ -10,26 +10,30 @@ export class Download {
     constructor(api, ea) {
         this.api = api;
         this.ea = ea;
+        this._setupSubscribers();
+    }
+
+    _setupSubscribers() {
+        let self = this;
         this.ea.subscribe(ImageClickedOn, msg => {
             let img = msg.image;
             let foundIndex = -1;
-            for (let index = 0; index < this.selectedImages.length; ++index) {
-                if (img.DownloadID === this.selectedImages[index].DownloadID) {
+            for (let index = 0; index < self.selectedImages.length; ++index) {
+                if (img.DownloadID === self.selectedImages[index].DownloadID) {
                     foundIndex = index;
                 }
             }
             if (foundIndex > -1) {
-                this.selectedImages.splice(foundIndex, 1);
+                self.selectedImages.splice(foundIndex, 1);
             } else {
-                this.selectedImages.push(img);
+                self.selectedImages.push(img);
             }
-            if (this.selectedImages.length > 0) {
-                this.disableButtons = false;
+            if (self.selectedImages.length > 0) {
+                self.disableButtons = false;
             } else {
-                this.disableButtons = true;
+                self.disableButtons = true;
             }
         });
-        let self = this;
         this.ea.subscribe(ViewPaneChangeCompleted, msg => {
             self._publishSelection();
         });
