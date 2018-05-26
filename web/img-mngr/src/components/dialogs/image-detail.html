@@ -1,26 +1,26 @@
 <template>
-    <ux-dialog>
-      <ux-dialog-body>
-        <h2 class="image-title">Image - ${image.Name}</h2>
-        <div>
-          <img src="${image.ImageURL}" alt="${image.Name}" class="open-image" />
-        </div>
-      </ux-dialog-body>
+  <ux-dialog>
+    <ux-dialog-body>
+      <h2 class="image-title">Image - ${image.Name}</h2>
+      <div>
+        <img src="${image.ImageURL}" alt="${image.Name}" class="open-image" />
+      </div>
+    </ux-dialog-body>
 
-      <ux-dialog-footer>
-        <div class="image-detail-modal-footer row">
-          <div class="image-detail-modal-selector col-xs-6">
-            <label>
-              <input type="checkbox" checked.bind="image.Selected" change.trigger="selectorClicked()" />
-              Is Selected
-            </label>
-          </div>
-          <div class="image-detail-modal-controls col-xs-6">
-            <button click.trigger="previous()">Previous</button>
-            <button click.trigger="next()">Next</button>
-            <button click.trigger="controller.cancel()">Cancel</button>
-          </div>
+    <ux-dialog-footer>
+      <div class="image-detail-modal-footer row">
+        <div class="image-detail-modal-selector col-xs-6">
+          <label>
+            <input type="checkbox" checked.bind="image.Selected" change.trigger="selectorClicked()" />
+            Is Selected
+          </label>
         </div>
-      </ux-dialog-footer>
-    </ux-dialog>
-  </template>
+        <div class="image-detail-modal-controls col-xs-6">
+          <button click.trigger="previous()">Previous</button>
+          <button click.trigger="next()">Next</button>
+          <button click.trigger="controller.cancel()">Cancel</button>
+        </div>
+      </div>
+    </ux-dialog-footer>
+  </ux-dialog>
+</template>
