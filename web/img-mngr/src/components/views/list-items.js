@@ -10,6 +10,10 @@ export class ListItems {
         this.media = {};
         this.ea = ea;
         this.dialogService = dialogService;
+        this._setupSubscriber();
+    }
+
+    _setupSubscriber() {
         let self = this;
         this.ea.subscribe(CurrentSelection, msg => {
             if (self.media.Images) {
@@ -17,18 +21,6 @@ export class ListItems {
                 let model = self;
                 for (let index = 0; index < model.media.Images.length; ++index) {
                     let image = model.media.Images[index];
-                    // Set previous node
-                    if (index - 1 < 0) {
-                        image.previous = null;
-                    } else {
-                        image.previous = model.media.Images[index - 1];
-                    }
-                    // Set next node
-                    if (index + 1 >= model.media.Images.length) {
-                        image.next = null;
-                    } else {
-                        image.next = model.media.Images[index + 1];
-                    }
                     // Check if the image is an already selected image
                     let imageFound = false;
                     for (let sIndex = 0; sIndex < selectedImages.length; ++sIndex) {
@@ -44,6 +36,7 @@ export class ListItems {
             }
         });
     }
+
     activate(model) {
         if (model.media.Directories) {
             for (let index = 0; index < model.media.Directories.length; ++index) {
@@ -55,6 +48,18 @@ export class ListItems {
             for (let index = 0; index < model.media.Images.length; ++index) {
                 let image = model.media.Images[index];
                 image.Selected = false;
+                // Set previous node
+                if (index - 1 < 0) {
+                    image.previous = null;
+                } else {
+                    image.previous = model.media.Images[index - 1];
+                }
+                // Set next node
+                if (index + 1 >= model.media.Images.length) {
+                    image.next = null;
+                } else {
+                    image.next = model.media.Images[index + 1];
+                }
             }
         }
         this.media = model.media;
