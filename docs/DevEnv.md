@@ -36,3 +36,11 @@ nano dist/image-manager.cfg
 These commands (except for config edit) are summarized in [this](https://gist.github.com/imyousuf/0e515fc9bcd5ff03f7967a1ea9f11128) script. When using this script you may mount it into the container using `docker-compose.override.yml` and you use `custom-scripts` directory to keep the script in the codebase. Both of these paths are ignored in git and docker.
 
 Please note that docker-compose also mounts the **Pictures** directory in *User Home* to serve images in the app; please use docker-compose override mechanism to point to the right test image storage location locally.
+
+To develop frontend with a fake backend api run the following commands:
+```
+cd web/img-mngr
+npm run fake-server
+```
+A fake backend api server will be up and running on port `9001`. Now, you can execute `au run` to get the frontend running.
+> Make sure to change the url to `http://localhost:9001/api/access` [here](https://github.com/imyousuf/fs-image-manager/blob/master/web/img-mngr/src/web-api.js#L5)
