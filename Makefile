@@ -45,8 +45,10 @@ setup-docker-dev:
 
 # This target is for Travis CI use only
 travis-docker-push:
-	sudo pip install "https://s3.amazonaws.com/install.newscred.com/docker-tools/nc-docker-tools-0.2.dev0.tar.gz"
-	docker login -u $(DOCKER_USER) -p $(DOCKER_PASS)
+    sudo pip install "https://s3.amazonaws.com/install.newscred.com/docker-tools/nc-docker-tools-0.2.dev0.tar.gz"
+ifdef DOCKER_USER
+    docker login -u $(DOCKER_USER) -p $(DOCKER_PASS)
+endif
 ifeq ($(TRAVIS_BRANCH), master)
 	@echo "Master docker push"
 	docker-helper push
