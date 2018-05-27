@@ -3,29 +3,29 @@ import { Download } from '../../src/components/panels/download';
 import { ImageClickedOn } from "../../src/messages";
 
 describe('Download', () => {
-  let sut, ea, api;
+  let downloadComp, ea, api;
 
   beforeEach(() => {
     ea = new EventAggregator();
     api = {};
-    sut = new Download(api, ea);
+    downloadComp = new Download(api, ea);
   });
 
   it('should have 0 selected images', () => {
-    expect(sut.selectedImages).toEqual([]);
+    expect(downloadComp.selectedImages).toEqual([]);
   });
 
   it('should select the image', () => {
     let msg = { image: { DownloadId: '123' }};
     ea.publish(new ImageClickedOn(msg));
-    expect(sut.selectedImages.length).toBe(1);
+    expect(downloadComp.selectedImages.length).toBe(1);
   });
 
   it('should enable download button', () => {
     let msg = { image: { DownloadId: '123' }};
-    expect(sut.disableButtons).toBe(true);
+    expect(downloadComp.disableButtons).toBe(true);
     ea.publish(new ImageClickedOn(msg));
-    expect(sut.disableButtons).toBe(false);
+    expect(downloadComp.disableButtons).toBe(false);
   });
 
 })
