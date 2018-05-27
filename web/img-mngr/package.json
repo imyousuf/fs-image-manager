@@ -8,7 +8,8 @@
   },
   "license": "MIT",
   "scripts": {
-    "au-update": "npm install aurelia-binding@latest aurelia-bootstrapper@latest aurelia-animator-css@latest aurelia-dialog@latest aurelia-http-client@latest aurelia-cli@latest aurelia-testing@latest aurelia-tools@latest"
+    "au-update": "npm install aurelia-binding@latest aurelia-bootstrapper@latest aurelia-animator-css@latest aurelia-dialog@latest aurelia-http-client@latest aurelia-cli@latest aurelia-testing@latest aurelia-tools@latest",
+    "fake-server": "json-server --port 9001 --watch db.json --routes routes.json"
   },
   "dependencies": {
     "aurelia-animator-css": "^1.0.4",
@@ -55,6 +56,7 @@
     "html-minifier": "^3.5.8",
     "is-docker": "^1.1.0",
     "jasmine-core": "^2.4.1",
+    "json-server": "0.12.2",
     "karma": "^0.13.22",
     "karma-babel-preprocessor": "^6.0.1",
     "karma-chrome-launcher": "^2.2.0",
