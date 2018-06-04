@@ -1,9 +1,11 @@
 import { EventAggregator } from 'aurelia-event-aggregator';
 import { Download } from '../../src/components/panels/download';
-import { ImageClickedOn } from "../../src/messages";
+import { ImageClickedOn } from '../../src/messages';
 
 describe('Download', () => {
-  let downloadComp, ea, api;
+  let downloadComp;
+  let ea;
+  let api;
 
   beforeEach(() => {
     ea = new EventAggregator();
@@ -27,5 +29,4 @@ describe('Download', () => {
     ea.publish(new ImageClickedOn(msg));
     expect(downloadComp.disableButtons).toBe(false);
   });
-
-})
+});
