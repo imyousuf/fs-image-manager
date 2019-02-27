@@ -1,4 +1,4 @@
-FROM imyousuf/go-node-docker-img:latest
+FROM imyousuf/go-node-docker-img:201712-1.9.2-8.9.3
 RUN mkdir -p /go/src/github.com/imyousuf/fs-image-manager/
 WORKDIR /go/src/github.com/imyousuf/fs-image-manager/
 ADD Makefile .
