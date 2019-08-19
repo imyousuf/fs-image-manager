@@ -1,16 +1,19 @@
+import {build} from 'aurelia-cli';
 import gulp from 'gulp';
+import project from '../aurelia.json';
 import htmlmin from 'gulp-htmlmin';
 import plumber from 'gulp-plumber';
 import notify from 'gulp-notify';
-import changedInPlace from 'gulp-changed-in-place';
-import project from '../aurelia.json';
-import {build} from 'aurelia-cli';
 
 export default function processMarkup() {
-  return gulp.src(project.markupProcessor.source)
+  return gulp.src(project.markupProcessor.source, {sourcemaps: true, since: gulp.lastRun(processMarkup)})
     .pipe(plumber({errorHandler: notify.onError('Error: <%= error.message %>')}))
-    .pipe(changedInPlace({firstPass:true}))
     .pipe(htmlmin({
+        collapseInlineTagWhitespace: true,
+        collapseBooleanAttributes: true,
+        removeAttributeQuotes: true,
+        removeScriptTypeAttributes: true,
+        removeStyleLinkTypeAttributes: true,
         removeComments: true,
         collapseWhitespace: true,
         minifyCSS: true,
@@ -19,3 +22,4 @@ export default function processMarkup() {
     }))
     .pipe(build.bundle());
 }
+
