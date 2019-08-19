@@ -1,8 +1,8 @@
 import gulp from 'gulp';
 import browserSync from 'browser-sync';
 import historyApiFallback from 'connect-history-api-fallback/lib';
-import {CLIOptions} from 'aurelia-cli';
 import project from '../aurelia.json';
+import {CLIOptions} from 'aurelia-cli';
 import build from './build';
 import watch from './watch';
 
@@ -11,8 +11,8 @@ let serve = gulp.series(
   done => {
     browserSync({
       online: false,
-      open: false,
-      port: 9000,
+      open: CLIOptions.hasFlag('open'),
+      port: CLIOptions.getFlagValue('port') || project.platform.port,
       logLevel: 'silent',
       server: {
         baseDir: [project.platform.baseDir],
@@ -40,15 +40,9 @@ function reload() {
   browserSync.reload();
 }
 
-let run;
-
-if (CLIOptions.hasFlag('watch')) {
-  run = gulp.series(
-    serve,
-    done => { watch(reload); done(); }
-  );
-} else {
-  run = serve;
-}
+let run = gulp.series(
+  serve,
+  done => { watch(reload); done(); }
+);
 
 export default run;
