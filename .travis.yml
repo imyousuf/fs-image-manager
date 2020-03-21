@@ -1,9 +1,9 @@
 language: go
 sudo: required
 go:
-  - 1.11
+  - 1.14
 node_js:
-  - 11.10
+  - 12.16
 python:
   - 2.7
 services:
