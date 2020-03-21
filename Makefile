@@ -1,13 +1,12 @@
 all: clean dep-tools deps test build travis-docker-push
 
 deps:
-	dep ensure -v -vendor-only
+	go mod download
 	( \
 		cd web/img-mngr/ && npm install \
 	)
 
 dep-tools:
-	go get -u github.com/golang/dep/cmd/dep
 	npm install aurelia-cli -g
 
 build-web:
@@ -18,19 +17,19 @@ build-web:
 	cp -r ./web/img-mngr/bootstrap/ ./dist/web/img-mngr/
 
 build: build-web
-	go build
+	go build -mod=readonly
 	cp ./fs-image-manager ./dist/
 	@echo "Version: $(shell git log --pretty=format:'%h' -n 1)"
 	(cd dist && tar cjvf fs-image-manager-$(shell git log --pretty=format:'%h' -n 1).tar.bz2 ./fs-image-manager ./web)
 
 test:
-	go test ./...
+	go test -mod=readonly ./...
 	( \
 		cd web/img-mngr/ && au test \
 	)
 
 install: build-web
-	go install
+	go install -mod=readonly
 
 setup-docker:
 	cp ./image-manager.cfg.template ./dist/image-manager.cfg

@@ -1,10 +1,10 @@
-FROM imyousuf/go-node-docker-img:201902-1.11.5-11.10.0
+FROM imyousuf/go-node-docker-img:202003-1.14.1-12.16.1
 RUN mkdir -p /go/src/github.com/imyousuf/fs-image-manager/
 WORKDIR /go/src/github.com/imyousuf/fs-image-manager/
 ADD Makefile .
 RUN make dep-tools
-ADD Gopkg.lock .
-ADD Gopkg.toml .
+ADD go.mod .
+ADD go.sum .
 RUN mkdir -p ./web/img-mngr/
 ADD ./web/img-mngr/package.json ./web/img-mngr/
 ADD ./web/img-mngr/package-lock.json ./web/img-mngr/
