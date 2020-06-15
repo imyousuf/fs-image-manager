@@ -44,7 +44,11 @@ setup-docker-dev:
 
 # This target is for Travis CI use only
 travis-docker-push:
+ifeq ($(shell which docker-helper),)
 	sudo pip install "https://s3.amazonaws.com/install.newscred.com/docker-tools/nc-docker-tools-0.2.dev0.tar.gz"
+else
+	@echo "Found Docker Helper"
+endif
 ifdef DOCKER_USER
 	docker login -u $(DOCKER_USER) -p $(DOCKER_PASS)
 endif
