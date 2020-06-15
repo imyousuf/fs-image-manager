@@ -25,6 +25,8 @@ dist/
 # Using `dep` so ignoring vendor dir
 vendor/
 
+.vscode
+
 # Project binaries
 fs-image-manager
 image-manager.cfg

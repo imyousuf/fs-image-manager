@@ -1,5 +1,6 @@
 custom-scripts/*
 vendor/*
+.vscode/*
 web/img-mngr/node_modules/*
 web/img-mngr/scripts/*
 web/img-mngr/.vscode/*
