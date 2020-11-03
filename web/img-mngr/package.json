@@ -22,7 +22,19 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test-nowatch": "react-scripts test --watchAll=false",
     "eject": "react-scripts eject"
+  },
+  "babel": {
+    "plugins": [
+      "@babel/plugin-syntax-dynamic-import"
+    ]
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.ts?$": "ts-jest"
+    },
+    "transformIgnorePatterns": ["/node_modules/*.js$"]
   },
   "eslintConfig": {
     "extends": [
@@ -41,5 +53,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@babel/plugin-syntax-dynamic-import": "^7.8.3",
+    "ts-jest": "^26.4.3"
   }
 }

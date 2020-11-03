@@ -1,7 +1,7 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { TextField } from 'precise-ui'
+import { TextField } from 'precise-ui';
 
 function App() {
   return (
