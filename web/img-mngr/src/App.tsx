@@ -1,10 +1,12 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
+import { TextField } from 'precise-ui'
 
 function App() {
   return (
     <div className="App">
+      <TextField label="Label" />
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
