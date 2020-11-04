@@ -34,7 +34,9 @@
     "transform": {
       "^.+\\.ts?$": "ts-jest"
     },
-    "transformIgnorePatterns": ["/node_modules/*.js$"]
+    "transformIgnorePatterns": [
+      "/node_modules/*.js$"
+    ]
   },
   "eslintConfig": {
     "extends": [
