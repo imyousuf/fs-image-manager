@@ -7,14 +7,11 @@ deps:
 	)
 
 dep-tools:
-	npm install aurelia-cli -g
 
 build-web:
 	mkdir -p ./dist/web/img-mngr/
-	cd web/img-mngr/ && au build --env prod
-	cp ./web/img-mngr/index.html ./dist/web/img-mngr/
-	cp -r ./web/img-mngr/scripts/ ./dist/web/img-mngr/
-	cp -r ./web/img-mngr/bootstrap/ ./dist/web/img-mngr/
+	cd web/img-mngr/ && npm run build
+	cp -r ./web/img-mngr/build/* ./dist/web/img-mngr/
 
 build: build-web
 	go build -mod=readonly
@@ -25,7 +22,7 @@ build: build-web
 test:
 	go test -mod=readonly ./...
 	( \
-		cd web/img-mngr/ && au test \
+		cd web/img-mngr/ && npm run test-nowatch \
 	)
 
 install: build-web
