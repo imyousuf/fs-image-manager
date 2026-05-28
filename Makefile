@@ -18,7 +18,13 @@ RELEASE_PLATFORMS := linux/amd64 linux/arm64
 DIST_DIR    := dist
 
 .PHONY: all build build-web test test-go test-web lint fmt sqlc-generate \
-        sqlc-diff release clean tidy help
+        sqlc-diff release deb clean tidy help
+
+# nfpm is a CI/build tool, not a Go module dependency. Install with:
+#   go install github.com/goreleaser/nfpm/v2/cmd/nfpm@latest
+NFPM        := nfpm
+# Package architecture for `make deb`; defaults to this host's GOARCH.
+DEB_ARCH    ?= $(shell $(GO) env GOARCH)
 
 all: lint test build
 
@@ -72,6 +78,13 @@ release: build-web
 	done
 	@cd $(DIST_DIR) && sha256sum *.tar.gz > SHA256SUMS
 	@echo "Release artifacts in $(DIST_DIR)/:" && ls -1 $(DIST_DIR)
+
+## deb: build the binary, then a .deb via nfpm (override DEB_ARCH=arm64 to cross-pkg)
+deb: build
+	@mkdir -p $(DIST_DIR)
+	version=$(VERSION) arch=$(DEB_ARCH) BIN=$(BINARY) \
+		$(NFPM) package -f nfpm.yaml -p deb -t $(DIST_DIR)/$(BINARY)_$(VERSION)_$(DEB_ARCH).deb
+	@echo "Built $(DIST_DIR)/$(BINARY)_$(VERSION)_$(DEB_ARCH).deb"
 
 ## tidy: go mod tidy
 tidy:

@@ -10,13 +10,13 @@ Type=simple
 #   sudo useradd --system --home /var/lib/fs-image-manager --shell /usr/sbin/nologin fsim
 User=fsim
 Group=fsim
-ExecStart=/usr/local/bin/fs-image-manager serve -config /etc/fs-image-manager/image-manager.cfg
+ExecStart=/usr/bin/fs-image-manager serve -config /etc/fs-image-manager/image-manager.cfg
 Restart=on-failure
 RestartSec=5s
 # Working dir holds the sqlite DB and derivative cache (per config).
 WorkingDirectory=/var/lib/fs-image-manager
 StateDirectory=fs-image-manager
-# Self-update replaces /usr/local/bin/fs-image-manager and restarts this unit;
+# Self-update replaces /usr/bin/fs-image-manager and restarts this unit;
 # allow the service user to manage its own restart via the helper below.
 
 # --- Hardening (relax if a sandbox option blocks media library access) ---

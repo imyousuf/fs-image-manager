@@ -17,7 +17,7 @@ Type=simple
 User=fsim
 Group=fsim
 EnvironmentFile=/etc/fs-image-manager/worker.env
-ExecStart=/usr/local/bin/fs-image-manager enrich-worker \
+ExecStart=/usr/bin/fs-image-manager enrich-worker \
     --server ${WORKER_SERVER} \
     --secret ${WORKER_SECRET} \
     -config /etc/fs-image-manager/image-manager.cfg

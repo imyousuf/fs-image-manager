@@ -16,6 +16,11 @@ jobs:
   release:
     name: Build and publish release assets
     runs-on: ubuntu-latest
+    env:
+      # Set this repo secret to ALSO publish each .deb to a Cloudsmith apt repo
+      # (gives users `apt update && apt install` + `apt upgrade`). The Cloudsmith
+      # step below no-ops when the secret is unset, so releases work without it.
+      CLOUDSMITH_API_KEY: ${{ secrets.CLOUDSMITH_API_KEY }}
     steps:
       - uses: actions/checkout@v4
 
@@ -38,12 +43,59 @@ jobs:
           VERSION: ${{ github.ref_name }}
         run: make release
 
+      # nfpm is a CI tool (github.com/goreleaser/nfpm/v2), never a go.mod dep.
+      - name: Install nfpm
+        run: go install github.com/goreleaser/nfpm/v2/cmd/nfpm@latest
+
+      # `make release` ships only the .tar.gz per arch (it deletes the loose
+      # binary dirs). Re-extract each binary and run nfpm to produce a .deb,
+      # then append the .deb checksums to the same SHA256SUMS manifest.
+      - name: Build Debian packages
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          for arch in amd64 arm64; do
+            tarball="dist/fs-image-manager_${VERSION}_linux_${arch}.tar.gz"
+            tar -xzf "${tarball}" -C dist
+            bin="dist/fs-image-manager_${VERSION}_linux_${arch}/fs-image-manager"
+            version="${VERSION}" arch="${arch}" BIN="${bin}" \
+              nfpm package -f nfpm.yaml -p deb \
+              -t "dist/fs-image-manager_${VERSION}_${arch}.deb"
+            rm -rf "dist/fs-image-manager_${VERSION}_linux_${arch}"
+          done
+          # Add the .deb digests alongside the existing tarball digests.
+          ( cd dist && sha256sum fs-image-manager_*.deb >> SHA256SUMS )
+          ls -1 dist
+
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          # Attach the cross-built tarballs and the checksum manifest.
+          # Attach the cross-built tarballs, the .deb packages, and the checksum manifest.
           files: |
             dist/fs-image-manager_*_*.tar.gz
+            dist/fs-image-manager_*_*.deb
             dist/SHA256SUMS
           generate_release_notes: true
           fail_on_unmatched_files: true
+
+      # Optional managed apt repo: push the .debs to Cloudsmith so users can
+      # `apt update && apt install fs-image-manager` and get upgrades. No-ops
+      # unless CLOUDSMITH_API_KEY is set. (packagecloud is a drop-in alternative:
+      # replace this step with computology/packagecloud-github-action.)
+      - name: Publish to Cloudsmith apt repo
+        if: ${{ env.CLOUDSMITH_API_KEY != '' }}
+        env:
+          VERSION: ${{ github.ref_name }}
+          CLOUDSMITH_OWNER: imyousuf
+          CLOUDSMITH_REPO: fs-image-manager
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet --upgrade cloudsmith-cli
+          # any-distro/any-version = a universal channel installable on any
+          # Debian-based distro (Debian/Ubuntu/derivatives).
+          for arch in amd64 arm64; do
+            cloudsmith push deb \
+              "${CLOUDSMITH_OWNER}/${CLOUDSMITH_REPO}/any-distro/any-version" \
+              "dist/fs-image-manager_${VERSION}_${arch}.deb"
+          done
