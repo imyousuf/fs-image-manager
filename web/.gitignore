@@ -1,0 +1,11 @@
+node_modules
+dev-dist
+*.local
+.vite
+
+# The Vite production build writes into dist/ and is not committed, EXCEPT for a
+# placeholder index.html (see dist/index.html) so that `go build` of the //go:embed
+# in embed.go always resolves on a fresh checkout. CI runs `npm run build` to produce
+# the real assets before building the binary.
+dist/*
+!dist/index.html

@@ -1,0 +1,30 @@
+# golangci-lint configuration (schema v2; run with golangci-lint >= v2.1).
+# The CI gate (.github/workflows/ci.yml) and `make lint` both run
+# `golangci-lint run`, picking this file up. Keep this in sync with the action
+# version pinned in CI (currently v2.11.3) so local and CI agree.
+#
+# Policy: the standard linter set with errcheck kept ON. Unchecked errors are
+# treated as findings module-wide — the idiom for an intentionally-ignored
+# return is an explicit `_ = x.Close()` (or a `defer func() { _ = x.Close() }()`
+# wrapper), not silent omission.
+#
+# This applies to TEST files too — there is NO _test.go relaxation. Deferred
+# closes in tests must use `defer func() { _ = x.Close() }()`, not
+# `defer x.Close()`, or the gate fails. (errcheck also compiles the package
+# graph via staticcheck/unused, so `golangci-lint run ./...` needs web/dist to
+# exist for the //go:embed in web/embed.go — the committed placeholder covers it.)
+version: "2"
+
+run:
+  timeout: 5m
+
+linters:
+  # "standard" = errcheck, govet, ineffassign, staticcheck, unused.
+  default: standard
+  # No extra linters enabled here yet; add opt-ins (e.g. revive, misspell) by
+  # listing them under `enable:` so the policy stays explicit and reviewable.
+
+formatters:
+  # gofmt is the canonical format; `make fmt` runs `gofmt -s -w .`.
+  enable:
+    - gofmt

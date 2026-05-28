@@ -1,59 +1,87 @@
-all: clean dep-tools deps test build travis-docker-push
+# fs-image-manager — build / test / lint / release
+#
+# The Go binary embeds the production frontend bundle (web/dist) via go:embed,
+# so `make build` always builds the frontend first. The binary is CGO-free
+# (pure-Go sqlite via modernc.org/sqlite); never set CGO_ENABLED=1 for builds.
 
-deps:
-	go mod download
-	( \
-		cd web/img-mngr/ && npm install \
-	)
+BINARY      := fs-image-manager
+WEB_DIR     := web
+WEB_DIST    := $(WEB_DIR)/dist
+# Version: exact tag if HEAD is tagged, else <tag>-<n>-g<sha>, else commit sha.
+VERSION     ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
+LDFLAGS     := -s -w -X main.version=$(VERSION)
+GO          := go
+export CGO_ENABLED := 0
 
-dep-tools:
+# Cross-compile matrix for `make release` (CGO-free linux only, per spec).
+RELEASE_PLATFORMS := linux/amd64 linux/arm64
+DIST_DIR    := dist
 
-build-web:
-	mkdir -p ./dist/web/img-mngr/
-	cd web/img-mngr/ && npm run build
-	cp -r ./web/img-mngr/build/* ./dist/web/img-mngr/
+.PHONY: all build build-web test test-go test-web lint fmt sqlc-generate \
+        sqlc-diff release clean tidy help
 
+all: lint test build
+
+## build: build the frontend, then the Go binary with the embedded bundle
 build: build-web
-	go build -mod=readonly
-	cp ./fs-image-manager ./dist/
-	@echo "Version: $(shell git log --pretty=format:'%h' -n 1)"
-	(cd dist && tar cjvf fs-image-manager-$(shell git log --pretty=format:'%h' -n 1).tar.bz2 ./fs-image-manager ./web)
+	$(GO) build -trimpath -ldflags="$(LDFLAGS)" -o $(BINARY) .
+	@echo "Built $(BINARY) version $(VERSION)"
 
-test:
-	go test -mod=readonly ./...
-	( \
-		cd web/img-mngr/ && npm run test-nowatch \
-	)
+## build-web: produce the production frontend bundle in web/dist
+build-web:
+	cd $(WEB_DIR) && npm ci && npm run build
 
-install: build-web
-	go install -mod=readonly
+## test: run both the Go and frontend test suites
+test: test-go test-web
 
-setup-docker:
-	cp ./image-manager.cfg.template ./dist/image-manager.cfg
+## test-go: run Go tests with the race detector (needs the frontend bundle to embed)
+test-go: build-web
+	CGO_ENABLED=1 $(GO) test -race ./...
 
+## test-web: run frontend typecheck + unit tests
+test-web:
+	cd $(WEB_DIR) && npm ci && npm run typecheck && npm run test:run
+
+## lint: run golangci-lint (install: https://golangci-lint.run/usage/install/)
+lint:
+	golangci-lint run --timeout=5m
+
+## fmt: gofmt the tree
+fmt:
+	gofmt -s -w .
+
+## sqlc-generate: regenerate internal/db/store from queries+migrations
+sqlc-generate:
+	sqlc generate
+
+## sqlc-diff: fail if generated sqlc code is stale (used in CI)
+sqlc-diff:
+	sqlc diff
+
+## release: cross-build CGO-free release tarballs + SHA256SUMS into dist/
+release: build-web
+	@rm -rf $(DIST_DIR) && mkdir -p $(DIST_DIR)
+	@set -e; for platform in $(RELEASE_PLATFORMS); do \
+		os=$${platform%/*}; arch=$${platform#*/}; \
+		out=$(DIST_DIR)/$(BINARY)_$(VERSION)_$${os}_$${arch}; \
+		echo "==> building $$out"; \
+		GOOS=$$os GOARCH=$$arch $(GO) build -trimpath -ldflags="$(LDFLAGS)" -o $$out/$(BINARY) . ; \
+		cp LICENSE README.md $$out/ 2>/dev/null || true; \
+		tar -czf $(DIST_DIR)/$(BINARY)_$(VERSION)_$${os}_$${arch}.tar.gz -C $(DIST_DIR) $(BINARY)_$(VERSION)_$${os}_$${arch}; \
+		rm -rf $$out; \
+	done
+	@cd $(DIST_DIR) && sha256sum *.tar.gz > SHA256SUMS
+	@echo "Release artifacts in $(DIST_DIR)/:" && ls -1 $(DIST_DIR)
+
+## tidy: go mod tidy
+tidy:
+	$(GO) mod tidy
+
+## clean: remove build outputs
 clean:
-	-rm -vrf ./dist/
-	-rm -v fs-image-manager
+	-rm -rf $(DIST_DIR)
+	-rm -f $(BINARY)
 
-# This target is for docker dev env
-setup-docker-dev:
-	(cd dist && mv web webx && ln -s ../web/ .)
-
-# This target is for Travis CI use only
-travis-docker-push:
-ifeq ($(shell which docker-helper),)
-	sudo pip install "https://s3.amazonaws.com/install.newscred.com/docker-tools/nc-docker-tools-0.2.dev0.tar.gz"
-else
-	@echo "Found Docker Helper"
-endif
-ifdef DOCKER_USER
-	docker login -u $(DOCKER_USER) -p $(DOCKER_PASS)
-endif
-ifeq ($(TRAVIS_BRANCH), master)
-	@echo "Master docker push"
-	docker-helper push
-endif
-ifneq ("$(TRAVIS_TAG)", "")
-	@echo "Tag docker push"
-	-ECR_DEFAULT_TAG="$(TRAVIS_TAG)" docker-helper push
-endif
+## help: list targets
+help:
+	@grep -E '^## ' $(MAKEFILE_LIST) | sed 's/## //'

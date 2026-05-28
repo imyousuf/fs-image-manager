@@ -1,15 +1,23 @@
-custom-scripts/*
-vendor/*
-.vscode/*
-web/img-mngr/node_modules/*
-web/img-mngr/scripts/*
-web/img-mngr/.vscode/*
-dist/*
+.git
+.github
+.vscode
+custom-scripts/
+vendor/
+dist/
+deploy/
+docs/
+
+# Node / frontend build artifacts (rebuilt inside the image)
+web/node_modules/
+web/dist/
+web/img-mngr/
+
+# Local config and databases
 image-manager.cfg
+*.sqlite*
+fsim.db*
+
+# Misc
 Dockerfile
-docker-compose.yml
-docker-compose.override.yml
-*docker-helper-config
-*dockerignore
-*gitignore
-*git
+.dockerignore
+.gitignore

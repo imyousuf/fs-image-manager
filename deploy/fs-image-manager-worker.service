@@ -1,0 +1,42 @@
+[Unit]
+Description=fs-image-manager (enrich-worker) - GPU transform/AI worker
+Documentation=https://github.com/imyousuf/fs-image-manager
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Runs on the GPU box. The worker pulls jobs from the serve instance's internal
+# job API; set --server to that instance and --secret to the shared secret that
+# matches [worker] shared_secret in the serve config.
+#
+# Keep the shared secret out of this unit file: put it in an environment file
+# readable only by root, e.g. /etc/fs-image-manager/worker.env containing
+#   WORKER_SECRET=<the shared secret>
+# and reference it below. WORKER_SERVER may live there too.
+User=fsim
+Group=fsim
+EnvironmentFile=/etc/fs-image-manager/worker.env
+ExecStart=/usr/local/bin/fs-image-manager enrich-worker \
+    --server ${WORKER_SERVER} \
+    --secret ${WORKER_SECRET} \
+    -config /etc/fs-image-manager/image-manager.cfg
+Restart=on-failure
+RestartSec=5s
+WorkingDirectory=/var/lib/fs-image-manager
+StateDirectory=fs-image-manager
+
+# --- Hardening ---
+# Note: do NOT add DevicePolicy/PrivateDevices restrictions that would hide the
+# GPU (/dev/nvidia*, /dev/dri) from ffmpeg/darktable; keep device access intact.
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=read-only
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+ReadWritePaths=/var/lib/fs-image-manager
+
+[Install]
+WantedBy=multi-user.target
