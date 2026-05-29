@@ -6,20 +6,20 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"log/slog"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
-	"github.com/imyousuf/fs-image-manager/internal/catalog"
 	"github.com/imyousuf/fs-image-manager/internal/config"
 	"github.com/imyousuf/fs-image-manager/internal/costest"
 	"github.com/imyousuf/fs-image-manager/internal/db"
 	"github.com/imyousuf/fs-image-manager/internal/media"
 	"github.com/imyousuf/fs-image-manager/internal/mediapath"
-	"github.com/imyousuf/fs-image-manager/internal/people"
 	"github.com/imyousuf/fs-image-manager/internal/selfupdate"
 	"github.com/imyousuf/fs-image-manager/internal/server"
 	"github.com/imyousuf/fs-image-manager/web"
@@ -264,78 +264,101 @@ func cmdUpdate(args []string) error {
 // cmdCostEstimate estimates the cloud cost of the media library: cloud object
 // storage (S3/GCS, monthly), AWS Rekognition one-time face indexing (per image,
 // tiered), Rekognition ongoing face-metadata storage (monthly), and the $0
-// local Ollama line. The actual pricing model lives in internal/costest; this
-// command only wires inputs (catalog/people DB, or what-if flags) and output.
+// local Ollama line. The pricing model lives in internal/costest; this command
+// only wires inputs (a filesystem walk) and output.
 //
-// Inputs: by default it opens -config + the DB and measures image-asset count,
-// total library bytes, and the actual stored face count. Any of -images N,
-// -size-gb F, -faces N overrides the corresponding measured value (what-if
-// mode). If ALL of -images and -size-gb are supplied, no DB is opened, so the
-// command works with no populated catalog.
+// Inputs are PATH-BASED and need no database:
+//
+//   - One or more positional PATH arguments -> walk those paths.
+//   - No path arguments -> load -config and walk the configured [libraries]
+//     absolute roots ("by default, take the configured paths").
+//
+// The walk counts display-image files (.jpg/.jpeg/.png/.heic — not RAW, not
+// video, so RAW+JPG pairs are not double-counted) as Rekognition face-index
+// candidates, and sums the bytes of every file under the path(s) for cloud
+// storage. Faces are not on disk, so the face count is ESTIMATED as
+// images * -avg-faces and labelled as such.
+//
+// The numeric what-if flags (-images/-faces/-size-gb) are OPTIONAL extras that
+// override the corresponding walked value; a path (or the configured paths) is
+// otherwise all that is needed.
 func cmdCostEstimate(args []string) error {
 	fs := flag.NewFlagSet("cost-estimate", flag.ContinueOnError)
-	cfgPath := fs.String("config", config.DefaultConfigFilePath, "path to the configuration file")
-	imagesFlag := fs.Int64("images", -1, "what-if: override image-asset count (skip DB count)")
-	facesFlag := fs.Int64("faces", -1, "what-if: override stored-face count (skip DB count)")
-	sizeGBFlag := fs.Float64("size-gb", -1, "what-if: override total library size in GB (skip DB count)")
-	avgFaces := fs.Float64("avg-faces", costest.DefaultAvgFacesPerImage, "faces-per-image used to estimate faces when none are indexed")
+	fs.Usage = func() {
+		fmt.Fprint(os.Stderr, `fs-image-manager cost-estimate [flags] [path ...]
+
+Estimate the cloud cost (storage + AWS Rekognition) for media under a path.
+
+  cost-estimate /photos/2024        estimate for one path tree
+  cost-estimate /a /b               estimate across several paths
+  cost-estimate                     walk the configured [libraries] roots
+
+Flags:
+`)
+		fs.PrintDefaults()
+	}
+	cfgPath := fs.String("config", config.DefaultConfigFilePath, "config file (used to find library roots when no path is given)")
+	avgFaces := fs.Float64("avg-faces", costest.DefaultAvgFacesPerImage, "faces-per-image used to estimate the stored-face count")
 	freeTier := fs.Bool("free-tier", false, "apply the AWS Rekognition 12-month free-tier allowances")
 	asJSON := fs.Bool("json", false, "emit the estimate as JSON instead of text")
-	if err := fs.Parse(args); err != nil {
-		return err
+	imagesFlag := fs.Int64("images", -1, "optional what-if: override the walked display-image count")
+	facesFlag := fs.Int64("faces", -1, "optional what-if: override the estimated stored-face count")
+	sizeGBFlag := fs.Float64("size-gb", -1, "optional what-if: override the walked total size in GB")
+
+	// Parse flags and positional PATH args in any order. The stdlib flag package
+	// stops at the first non-flag token, so we loop: parse, peel off the leading
+	// positional(s) until the next flag, then parse the rest. This lets a path be
+	// the obvious primary input whether flags come before or after it
+	// (e.g. "cost-estimate /photos -json" and "cost-estimate -json /photos").
+	var roots []string
+	rest := args
+	for {
+		if err := fs.Parse(rest); err != nil {
+			// -h/-help prints usage and asks to stop; that is not a failure.
+			if errors.Is(err, flag.ErrHelp) {
+				return nil
+			}
+			return err
+		}
+		rest = fs.Args()
+		if len(rest) == 0 {
+			break
+		}
+		// Consume leading positionals (non-flag tokens) as paths.
+		for len(rest) > 0 && !strings.HasPrefix(rest[0], "-") {
+			roots = append(roots, rest[0])
+			rest = rest[1:]
+		}
+		if len(rest) == 0 {
+			break
+		}
 	}
 
 	ctx, cancel := signalContext()
 	defer cancel()
 
-	// What-if short-circuit: if both -images and -size-gb are given, every input
-	// can be supplied by flags, so we never need the DB. -faces, if omitted, is
-	// estimated from -images. This is the "works without a populated DB" path.
-	if *imagesFlag >= 0 && *sizeGBFlag >= 0 {
-		in := costest.Inputs{
-			Images:          *imagesFlag,
-			SizeBytes:       int64(*sizeGBFlag * 1_000_000_000),
-			ImagesAreActual: false,
-			SizeIsActual:    false,
+	// Resolve the roots to walk: positional path args take precedence; otherwise
+	// fall back to the configured [libraries] roots ("by default the configured
+	// paths"). No DB is ever opened.
+	if len(roots) == 0 {
+		cfg, err := config.Load(*cfgPath)
+		if err != nil {
+			return err
 		}
-		if *facesFlag >= 0 {
-			in.Faces = *facesFlag
-			in.FacesAreActual = false
-		} else {
-			in.Faces = costest.EstimateFacesFromImages(in.Images, *avgFaces)
-			in.FacesAreActual = false
+		for _, lib := range cfg.Libraries() {
+			roots = append(roots, lib.Root)
 		}
-		return renderCostEstimate(in, *avgFaces, *freeTier, *asJSON)
+	}
+	if err := costest.ValidateRoots(roots); err != nil {
+		return err
 	}
 
-	// DB-backed path: open config + DB and measure from the catalog/people repos,
-	// then apply any individual what-if overrides on top.
-	cfg, err := config.Load(*cfgPath)
+	in, err := costest.FSSource{Roots: roots, AvgFacesPerImage: *avgFaces}.Collect(ctx)
 	if err != nil {
 		return err
 	}
-	conn, err := db.Open(ctx, cfg.DBPath())
-	if err != nil {
-		return fmt.Errorf("cost-estimate: open db: %w", err)
-	}
-	defer func() { _ = conn.Close() }()
 
-	aliases := make([]string, 0, len(cfg.Libraries()))
-	for _, lib := range cfg.Libraries() {
-		aliases = append(aliases, lib.Alias)
-	}
-	src := costest.RepoSource{
-		Aliases:          aliases,
-		Assets:           catalog.NewRepo(conn, media.ClassifyExt),
-		People:           people.NewRepo(conn),
-		Faces:            people.NewRepo(conn),
-		AvgFacesPerImage: *avgFaces,
-	}
-	in, err := src.Collect(ctx)
-	if err != nil {
-		return err
-	}
-	// Individual what-if overrides on measured values.
+	// Optional numeric what-if overrides on the walked values.
 	if *imagesFlag >= 0 {
 		in.Images = *imagesFlag
 		in.ImagesAreActual = false

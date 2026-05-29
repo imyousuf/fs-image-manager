@@ -4,12 +4,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"math"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
-
-	"github.com/imyousuf/fs-image-manager/internal/catalog"
 )
 
 const eps = 1e-9
@@ -288,126 +287,152 @@ func TestRenderJSON_Shape(t *testing.T) {
 	}
 }
 
-// --- RepoSource (injectable, DB-free) ---------------------------------------
+// --- display-image classification -------------------------------------------
 
-type fakeAssetLister struct {
-	byAlias map[string][]catalog.Asset
-	err     error
-}
-
-func (f fakeAssetLister) ListAllAssets(_ context.Context, alias string) ([]catalog.Asset, error) {
-	if f.err != nil {
-		return nil, f.err
+func TestIsDisplayImage(t *testing.T) {
+	display := []string{"a.jpg", "b.JPEG", "c.png", "d.HEIC", "e.Jpg"}
+	for _, n := range display {
+		if !IsDisplayImage(n) {
+			t.Errorf("%q should be a display image", n)
+		}
 	}
-	return f.byAlias[alias], nil
-}
-
-type fakePeople struct {
-	persons []catalog.Person
-	counts  map[string]int64
-	err     error
-}
-
-func (f fakePeople) ListPersons(context.Context) ([]catalog.Person, error) {
-	return f.persons, f.err
-}
-
-func (f fakePeople) CountFacesForPerson(_ context.Context, personID string) (int64, error) {
-	if f.err != nil {
-		return 0, f.err
+	notDisplay := []string{"a.cr3", "b.NEF", "c.arw", "d.dng", "e.mp4", "f.mov", "g.xmp", "h.txt", "noext"}
+	for _, n := range notDisplay {
+		if IsDisplayImage(n) {
+			t.Errorf("%q should NOT be a display image", n)
+		}
 	}
-	return f.counts[personID], nil
 }
 
-func img(alias string, files ...int64) catalog.Asset {
-	a := catalog.Asset{Alias: alias, Kind: "image"}
-	for _, s := range files {
-		a.Files = append(a.Files, catalog.File{Size: s})
+// --- FSSource (filesystem walk, no DB / network) ----------------------------
+
+// writeFile creates path under dir with n bytes, making parent dirs as needed.
+func writeFile(t *testing.T, path string, n int) {
+	t.Helper()
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		t.Fatal(err)
 	}
-	return a
+	if err := os.WriteFile(path, make([]byte, n), 0o644); err != nil {
+		t.Fatal(err)
+	}
 }
 
-func vid(alias string, files ...int64) catalog.Asset {
-	a := catalog.Asset{Alias: alias, Kind: "video"}
-	for _, s := range files {
-		a.Files = append(a.Files, catalog.File{Size: s})
+// mixedTree builds a temp dir with a mix of display images, RAW, video, sidecar
+// and other files (in nested subdirs) and returns the root plus the expected
+// display-image count and total byte size.
+func mixedTree(t *testing.T) (root string, wantImages int64, wantBytes int64) {
+	t.Helper()
+	root = t.TempDir()
+	files := []struct {
+		rel  string
+		size int
+	}{
+		{"2024/IMG_1.JPG", 100}, // display image
+		{"2024/IMG_1.CR3", 900}, // RAW pair of IMG_1 -> NOT counted as image (no double-count)
+		{"2024/IMG_2.png", 50},  // display image
+		{"2024/IMG_2.xmp", 5},   // sidecar -> not an image
+		{"trip/clip.mp4", 1000}, // video -> not an image
+		{"trip/pic.heic", 200},  // display image
+		{"notes.txt", 10},       // other -> not an image
 	}
-	return a
+	for _, f := range files {
+		writeFile(t, filepath.Join(root, f.rel), f.size)
+		wantBytes += int64(f.size)
+		if IsDisplayImage(f.rel) {
+			wantImages++
+		}
+	}
+	return root, wantImages, wantBytes
 }
 
-func TestRepoSource_ActualFaces(t *testing.T) {
-	assets := fakeAssetLister{byAlias: map[string][]catalog.Asset{
-		"pics": {
-			img("pics", 100, 50), // image, 150 bytes (RAW+JPG)
-			img("pics", 200),     // image, 200 bytes
-			vid("pics", 1000),    // video, 1000 bytes, NOT an image
-		},
-	}}
-	ppl := fakePeople{
-		persons: []catalog.Person{{ID: "p1"}, {ID: "p2"}},
-		counts:  map[string]int64{"p1": 3, "p2": 4},
-	}
-	src := RepoSource{Aliases: []string{"pics"}, Assets: assets, People: ppl, Faces: ppl}
+func TestFSSource_CountsDisplayImagesAndAllBytes(t *testing.T) {
+	root, wantImages, wantBytes := mixedTree(t)
 
-	in, err := src.Collect(context.Background())
+	in, err := FSSource{Roots: []string{root}}.Collect(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if wantImages != 3 { // sanity: jpg + png + heic
+		t.Fatalf("test fixture wrong: wantImages=%d", wantImages)
+	}
+	if in.Images != wantImages {
+		t.Errorf("images: got %d want %d (display images only; RAW/video/other excluded)", in.Images, wantImages)
+	}
+	if in.SizeBytes != wantBytes {
+		t.Errorf("size: got %d want %d (all files under the tree)", in.SizeBytes, wantBytes)
+	}
+	if !in.ImagesAreActual || !in.SizeIsActual {
+		t.Error("walked images/size should be marked actual")
+	}
+	// Faces are not on disk -> always estimated.
+	if in.FacesAreActual {
+		t.Error("faces should be estimated (not on disk)")
+	}
+	if in.Faces != EstimateFacesFromImages(wantImages, 0) {
+		t.Errorf("faces: got %d want default-estimate %d", in.Faces, EstimateFacesFromImages(wantImages, 0))
+	}
+}
+
+func TestFSSource_AvgFacesEstimate(t *testing.T) {
+	root, wantImages, _ := mixedTree(t)
+	in, err := FSSource{Roots: []string{root}, AvgFacesPerImage: 2}.Collect(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if in.Faces != wantImages*2 {
+		t.Errorf("avg-faces=2 estimate: got %d want %d", in.Faces, wantImages*2)
+	}
+}
+
+func TestFSSource_MultipleRoots(t *testing.T) {
+	a := t.TempDir()
+	b := t.TempDir()
+	writeFile(t, filepath.Join(a, "x.jpg"), 100)
+	writeFile(t, filepath.Join(b, "y.png"), 200)
+	writeFile(t, filepath.Join(b, "z.raw.cr2"), 300) // not a display image
+
+	in, err := FSSource{Roots: []string{a, b}}.Collect(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
 	if in.Images != 2 {
-		t.Errorf("images: got %d want 2 (videos excluded)", in.Images)
+		t.Errorf("images across roots: got %d want 2", in.Images)
 	}
-	if in.SizeBytes != 1350 {
-		t.Errorf("size: got %d want 1350 (all files incl. video)", in.SizeBytes)
-	}
-	if in.Faces != 7 || !in.FacesAreActual {
-		t.Errorf("faces: got %d actual=%v, want 7 actual", in.Faces, in.FacesAreActual)
-	}
-	if !in.ImagesAreActual || !in.SizeIsActual {
-		t.Error("measured images/size should be actual")
+	if in.SizeBytes != 600 {
+		t.Errorf("bytes across roots: got %d want 600", in.SizeBytes)
 	}
 }
 
-func TestRepoSource_EstimatesFacesWhenNoneIndexed(t *testing.T) {
-	assets := fakeAssetLister{byAlias: map[string][]catalog.Asset{
-		"pics": {img("pics", 10), img("pics", 10), img("pics", 10), img("pics", 10)},
-	}}
-	// People wired but no faces stored => estimate.
-	ppl := fakePeople{persons: []catalog.Person{{ID: "p1"}}, counts: map[string]int64{"p1": 0}}
-	src := RepoSource{Aliases: []string{"pics"}, Assets: assets, People: ppl, Faces: ppl, AvgFacesPerImage: 2}
+func TestFSSource_SingleFileRoot(t *testing.T) {
+	dir := t.TempDir()
+	p := filepath.Join(dir, "solo.jpeg")
+	writeFile(t, p, 42)
 
-	in, err := src.Collect(context.Background())
+	in, err := FSSource{Roots: []string{p}}.Collect(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
-	if in.FacesAreActual {
-		t.Error("faces should be estimated when none indexed")
-	}
-	if in.Faces != 8 { // 4 images * 2.0
-		t.Errorf("estimated faces: got %d want 8", in.Faces)
+	if in.Images != 1 || in.SizeBytes != 42 {
+		t.Errorf("single-file root: got images=%d bytes=%d want 1/42", in.Images, in.SizeBytes)
 	}
 }
 
-func TestRepoSource_NilPeopleEstimates(t *testing.T) {
-	assets := fakeAssetLister{byAlias: map[string][]catalog.Asset{
-		"pics": {img("pics", 10), img("pics", 10)},
-	}}
-	src := RepoSource{Aliases: []string{"pics"}, Assets: assets} // no People/Faces
-	in, err := src.Collect(context.Background())
-	if err != nil {
-		t.Fatal(err)
-	}
-	if in.FacesAreActual {
-		t.Error("nil people repo => estimate")
-	}
-	if in.Faces != 3 { // 2 images * default 1.5
-		t.Errorf("estimated faces: got %d want 3", in.Faces)
+func TestFSSource_MissingRootErrors(t *testing.T) {
+	_, err := FSSource{Roots: []string{filepath.Join(t.TempDir(), "does-not-exist")}}.Collect(context.Background())
+	if err == nil {
+		t.Fatal("expected an error walking a missing root")
 	}
 }
 
-func TestRepoSource_PropagatesErrors(t *testing.T) {
-	wantErr := errors.New("boom")
-	src := RepoSource{Aliases: []string{"pics"}, Assets: fakeAssetLister{err: wantErr}}
-	if _, err := src.Collect(context.Background()); !errors.Is(err, wantErr) {
-		t.Errorf("expected wrapped asset error, got %v", err)
+func TestValidateRoots(t *testing.T) {
+	if err := ValidateRoots(nil); err == nil {
+		t.Error("empty roots should error")
+	}
+	dir := t.TempDir()
+	if err := ValidateRoots([]string{dir}); err != nil {
+		t.Errorf("existing dir should validate: %v", err)
+	}
+	if err := ValidateRoots([]string{filepath.Join(dir, "nope")}); err == nil {
+		t.Error("missing path should error")
 	}
 }
