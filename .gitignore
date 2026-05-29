@@ -10,8 +10,9 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
-# Build dirs
-dist/
+# Build dirs — repo-root output only. (web/dist is governed by web/.gitignore,
+# which keeps a placeholder index.html for the //go:embed in web/embed.go.)
+/dist/
 
 # Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
 .glide/

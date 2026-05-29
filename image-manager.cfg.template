@@ -1,21 +1,41 @@
-[database]
-dialect=mysql
-connection_url=admin:zxc909zxc@tcp(mysql:3306)/img_mngr?charset=utf8&parseTime=True
+# fs-image-manager configuration template (INI).
+# Copy to /etc/fs-image-manager/image-manager.cfg and edit. Pass a different
+# location with `-config`. See docs/specs/_contracts.md §7 for the full schema.
+
+[libraries]
+# alias = absolute path (a leading ~ is expanded). Add one line per library.
+# The alias is the first segment of every media path, e.g. pictures/2021/IMG.CR3
+pictures = /home/imyousuf/Pictures
+videos   = /home/imyousuf/Videos
 
 [http]
-listener=:8080
-read_timeout=240
-write_timeout=240
-static_file_dir=web/img-mngr/
+listener = :8080
 
-[library]
-library_root=/path/to/images_dir
-support_png=true
+[auth]
+# Bearer token required on API requests. Leave empty for an open LAN install.
+token =
 
-# Log configuration is optional
-[log]
-filename=/var/log/golang-url-shortener.log
-max_file_size_in_mb=200
-max_backups=3
-max_age_in_days=28
-compress_backups=true
+[database]
+# sqlite file (pure-Go modernc driver). Relative paths are resolved from the
+# service WorkingDirectory (/var/lib/fs-image-manager under systemd).
+path = ./fsim.db
+
+[cache]
+# Directory for generated thumbnails/posters/derivatives.
+dir = ./cache
+
+[ingest]
+# Trailing-debounce quiet period before a changed file is (re)ingested.
+debounce_seconds = 300
+
+[worker]
+# Shared secret for the internal job API. The enrich-worker on the GPU box must
+# pass the same value via --secret (see deploy/fs-image-manager-worker.service).
+shared_secret =
+
+[ai]
+# Optional. Left empty, AI enrichment/recognition is disabled.
+ollama_url =
+rekognition_profile = imyousuf
+rekognition_region  = us-east-1
+rekognition_collection =

@@ -1,0 +1,71 @@
+# nfpm configuration for the fs-image-manager Debian package.
+# https://nfpm.goreleaser.com/configuration/
+#
+# nfpm is a CI/build tool (github.com/goreleaser/nfpm/v2), NOT a Go module
+# dependency — it must never appear in go.mod. Install it with
+#   go install github.com/goreleaser/nfpm/v2/cmd/nfpm@latest
+# and build a package with (the env vars are read by the ${...} templates below):
+#   version=v0.2.0 arch=amd64 BIN=dist/fs-image-manager_v0.2.0_linux_amd64/fs-image-manager \
+#     nfpm package -f nfpm.yaml -p deb -t out.deb
+#
+# `make deb` and the release workflow set those vars for you.
+
+name: fs-image-manager
+# `arch` selects the package architecture; nfpm reuses it as ${ARCH} below.
+# Defaults to amd64 when the env var is unset (e.g. a quick local build).
+arch: ${arch}
+platform: linux
+# `version` is normally the release tag, e.g. v0.2.0. nfpm strips a leading
+# "v" for the package version automatically.
+version: ${version}
+section: utils
+priority: optional
+maintainer: Imran M Yousuf <imran@sosuke.ai>
+homepage: https://github.com/imyousuf/fs-image-manager
+license: GPL-3.0-or-later
+description: |
+  Self-hosted media library server with an embedded web UI.
+  fs-image-manager indexes photo/video libraries on the filesystem into a
+  SQLite catalog, serves a fast browse/search/upload web UI, and can offload
+  GPU transforms and optional AI enrichment to a worker. Ships as a single
+  CGO-free binary with subcommands: serve, scan, warm-cache, enrich-worker,
+  update.
+
+contents:
+  # The built binary. ${BIN} points at the per-arch binary produced by
+  # `make build` (./fs-image-manager) or `make release`
+  # (dist/fs-image-manager_<version>_linux_<arch>/fs-image-manager).
+  - src: ${BIN}
+    dst: /usr/bin/fs-image-manager
+    # expand: true lets nfpm substitute ${BIN} from the environment for this
+    # source path (env expansion in contents src/dst is opt-in per entry).
+    expand: true
+    file_info:
+      mode: 0755
+
+  # systemd units. Installed disabled; postinstall only runs daemon-reload.
+  - src: deploy/fs-image-manager.service
+    dst: /lib/systemd/system/fs-image-manager.service
+    file_info:
+      mode: 0644
+  - src: deploy/fs-image-manager-worker.service
+    dst: /lib/systemd/system/fs-image-manager-worker.service
+    file_info:
+      mode: 0644
+
+  # Config installed as a dpkg conffile: edits survive package upgrades and
+  # dpkg prompts before overwriting a locally modified copy.
+  - src: image-manager.cfg.template
+    dst: /etc/fs-image-manager/image-manager.cfg
+    type: config|noreplace
+    file_info:
+      mode: 0640
+
+scripts:
+  postinstall: packaging/deb/postinstall.sh
+  preremove: packaging/deb/preremove.sh
+  postremove: packaging/deb/postremove.sh
+
+deb:
+  # Compress with xz for smaller assets; widely supported by modern dpkg/apt.
+  compression: xz

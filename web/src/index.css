@@ -1,0 +1,36 @@
+@import 'tailwindcss';
+
+/* Dark, media-forward theme. Tailwind v4 reads theme tokens from this @theme block. */
+@theme {
+  --color-surface: #0f172a;
+  --color-surface-raised: #1e293b;
+  --color-surface-hover: #334155;
+  --color-border: #334155;
+  --color-accent: #38bdf8;
+  --color-accent-strong: #0ea5e9;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-surface);
+  color: #e2e8f0;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Hide scrollbars in the virtualized grid but keep scroll behaviour. */
+.scroll-area {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}

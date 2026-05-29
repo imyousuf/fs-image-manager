@@ -1,6 +1,0 @@
-{
-  "/api/access": "/access",
-  "/api/list": "/list",
-  "/api/list-path?path=/Photos/": "/photos",
-  "/api/list-path?path=/Photos/Canon_Backups/": "/canon"
-}
