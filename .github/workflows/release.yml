@@ -68,14 +68,32 @@ jobs:
           ( cd dist && sha256sum fs-image-manager_*.deb >> SHA256SUMS )
           ls -1 dist
 
+      # Attach the curl|bash installer plus the files it fetches per release, so
+      # both `releases/latest/download/install.sh` and the script's per-tag
+      # `releases/download/<tag>/{install.sh,*.service,image-manager.cfg.template}`
+      # URLs resolve.
+      - name: Stage installer + service assets
+        run: |
+          set -euo pipefail
+          cp packaging/install.sh dist/install.sh
+          cp deploy/fs-image-manager.service dist/fs-image-manager.service
+          cp deploy/fs-image-manager-worker.service dist/fs-image-manager-worker.service
+          cp image-manager.cfg.template dist/image-manager.cfg.template
+          ls -1 dist
+
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          # Attach the cross-built tarballs, the .deb packages, and the checksum manifest.
+          # Attach the cross-built tarballs, the .deb packages, the checksum
+          # manifest, the curl|bash installer, and the files it fetches.
           files: |
             dist/fs-image-manager_*_*.tar.gz
             dist/fs-image-manager_*_*.deb
             dist/SHA256SUMS
+            dist/install.sh
+            dist/fs-image-manager.service
+            dist/fs-image-manager-worker.service
+            dist/image-manager.cfg.template
           generate_release_notes: true
           fail_on_unmatched_files: true
 
@@ -87,8 +105,8 @@ jobs:
         if: ${{ env.CLOUDSMITH_API_KEY != '' }}
         env:
           VERSION: ${{ github.ref_name }}
-          CLOUDSMITH_OWNER: imyousuf
-          CLOUDSMITH_REPO: fs-image-manager
+          CLOUDSMITH_OWNER: cst
+          CLOUDSMITH_REPO: cst
         run: |
           set -euo pipefail
           python3 -m pip install --quiet --upgrade cloudsmith-cli

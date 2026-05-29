@@ -11,6 +11,34 @@ Both roles run from the **same binary**; the systemd unit decides which mode.
 
 ---
 
+## Quickest: curl | bash (any Linux)
+
+```sh
+curl -fsSL https://github.com/imyousuf/fs-image-manager/releases/latest/download/install.sh | sudo bash
+```
+
+This downloads the latest release for your arch (amd64/arm64), verifies the
+SHA256, installs the binary to `/usr/bin/fs-image-manager`, and — when run as
+root on a systemd host — installs both units, creates the `fsim` user and
+`/var/lib/fs-image-manager`, and drops a default config at
+`/etc/fs-image-manager/image-manager.cfg` (only if one doesn't already exist).
+It does **not** start the service (you set your config first). Re-run it any
+time to upgrade. Useful flags:
+
+```sh
+# pin a version, or install just the binary (no units/user/config):
+curl -fsSL https://github.com/imyousuf/fs-image-manager/releases/latest/download/install.sh \
+  | sudo bash -s -- --version v0.2.0
+curl -fsSL https://github.com/imyousuf/fs-image-manager/releases/latest/download/install.sh \
+  | sudo bash -s -- --no-service
+```
+
+Use this for any non-Debian Linux, quick one-off installs, or the GPU **worker**
+box. On Debian/Ubuntu the [`.deb`](#install-via-deb-recommended-on-debianubuntu)
+is the cleaner choice (dpkg-managed config, upgrades, removal).
+
+---
+
 ## Install via .deb (recommended on Debian/Ubuntu)
 
 Each release publishes a `.deb` per architecture as a GitHub Release asset. It
@@ -84,15 +112,15 @@ workflow can also push each `.deb` to a managed [Cloudsmith](https://cloudsmith.
 apt repository (GitHub Packages does not host Debian repos; Cloudsmith handles the
 signing + hosting). packagecloud.io works the same way — swap the publish step.
 
-**Maintainer setup (one time):** create a Cloudsmith repo `imyousuf/fs-image-manager`
-and add its API key as the `CLOUDSMITH_API_KEY` GitHub Actions secret. The release
-job then pushes the per-arch `.deb`s to the `any-distro/any-version` channel on every
-`v*` tag. (Without the secret, releases still publish the `.deb` assets shown above.)
+**Maintainer setup:** configured — the Cloudsmith workspace/repo is `cst/cst` and the
+`CLOUDSMITH_API_KEY` Actions secret is set, so the release job pushes the per-arch
+`.deb`s to the `any-distro/any-version` channel on every `v*` tag. (Without the secret,
+releases still publish the `.deb` assets shown above.)
 
 **End-user setup** (Cloudsmith shows the exact one-liner on the repo page):
 
 ```sh
-curl -1sLf 'https://dl.cloudsmith.io/public/imyousuf/fs-image-manager/setup.deb.sh' \
+curl -1sLf 'https://dl.cloudsmith.io/public/cst/cst/setup.deb.sh' \
   | sudo -E bash
 sudo apt install fs-image-manager
 ```
